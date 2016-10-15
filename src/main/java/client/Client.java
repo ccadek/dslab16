@@ -40,56 +40,47 @@ public class Client implements IClientCli, Runnable {
 
 	@Override
 	public String login(String username, String password) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!login "+username+" "+password;
 	}
 
 	@Override
 	public String logout() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!logout";
 	}
 
 	@Override
 	public String send(String message) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!send "+message;
 	}
 
 	@Override
 	public String list() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!list";
 	}
 
 	@Override
 	public String msg(String username, String message) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!msg "+username+" "+message;
 	}
 
 	@Override
 	public String lookup(String username) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!lookup "+username;
 	}
 
 	@Override
 	public String register(String privateAddress) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!register "+privateAddress;
 	}
 	
 	@Override
 	public String lastMsg() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!lastMsg";
 	}
 
 	@Override
 	public String exit() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return "!exit";
 	}
 
 	/**
