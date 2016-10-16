@@ -3,6 +3,8 @@ package client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import util.Config;
 
@@ -90,6 +92,9 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
+		//ExecutorService e = Executors.newCachedThreadPool();
+		//e.execute(client);
+		//(new Thread(client)).start();
 		// TODO: start the client
 	}
 
