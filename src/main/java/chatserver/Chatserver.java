@@ -3,6 +3,7 @@ package chatserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.ServerSocket;
 
 import util.Config;
 
@@ -12,6 +13,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
+	private ServerSocket serverSocket;
 
 	/**
 	 * @param componentName
@@ -46,7 +48,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 	@Override
 	public String exit() throws IOException {
-		// TODO Auto-generated method stub
+		if(serverSocket != null){
+			serverSocket.close();
+		}
 		return null;
 	}
 
