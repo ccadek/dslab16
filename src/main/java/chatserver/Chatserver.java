@@ -62,6 +62,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 	public static void main(String[] args) {
 		Chatserver chatserver = new Chatserver(args[0],
 				new Config("chatserver"), System.in, System.out);
+		IChatserverCli chatserverCli = new ChatServerCli(new Config("chatserver"),"shell-server",System.in,System.out);
+		new Thread((Runnable) chatserverCli).start();
 		// TODO: start the chatserver
 	}
 
