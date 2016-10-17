@@ -92,7 +92,7 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
-		IClientCli clientShell = new ClientCli(new Config("client"),"client-shell",System.in,System.out);
+		IClientCli clientShell = new ClientCli(new Config("user"),"shell-client",System.in,System.out);
 		new Thread((Runnable) clientShell).start();
 		//ExecutorService e = Executors.newCachedThreadPool();
 		//e.execute(client);
