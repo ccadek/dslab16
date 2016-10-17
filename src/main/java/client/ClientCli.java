@@ -103,7 +103,9 @@ public class ClientCli implements IClientCli, Runnable {
     @Command
     @Override
     public String exit() throws IOException {
-        return null;
+        logout();
+        shell.close();
+        return "Client successfully closed";
     }
 
     @Command

@@ -37,7 +37,8 @@ public class ChatServerCli implements IChatserverCli,Runnable {
 
     @Override
     public String exit() throws IOException {
-        return "exit";
+        shell.close();
+        return "Server closed.";
     }
 
     @Override
