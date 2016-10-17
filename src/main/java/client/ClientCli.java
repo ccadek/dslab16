@@ -108,14 +108,17 @@ public class ClientCli implements IClientCli, Runnable {
         return "Client successfully closed";
     }
 
+    @Override
+    public void run() {
+        new Thread(shell).start();
+    }
+
+    // --- Commands needed for Lab 2. Please note that you do not have to
+    // implement them for the first submission. ---
+    
     @Command
     @Override
     public String authenticate(String username) throws IOException {
         return null;
-    }
-
-    @Override
-    public void run() {
-        new Thread(shell).start();
     }
 }
