@@ -4,7 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import cli.Command;
+import cli.Shell;
 import util.Config;
 
 public class Chatserver implements IChatserverCli, Runnable {
@@ -14,6 +20,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
 	private ServerSocket serverSocket;
+	private List<String> loggedInUsers;
+	private Shell shell;
+	private static ExecutorService executorService;
 
 	/**
 	 * @param componentName
@@ -31,8 +40,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 		this.config = config;
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
-
-		// TODO
+		this.loggedInUsers = new ArrayList<>();
+		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
 	}
 
 	@Override
@@ -40,18 +49,29 @@ public class Chatserver implements IChatserverCli, Runnable {
 		// TODO
 	}
 
+	@Command
 	@Override
 	public String users() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		if(loggedInUsers.size() == 0){
+			return "No users logged in";
+		}
+		String rtn = "";
+		for(int i = 0; i < loggedInUsers.size(); i++){
+			rtn += loggedInUsers.get(i)+",";
+		}
+		return rtn;
 	}
 
+	@Command
 	@Override
 	public String exit() throws IOException {
 		if(serverSocket != null){
 			serverSocket.close();
 		}
-		return null;
+		loggedInUsers.clear();
+		shell.close();
+		executorService.shutdown();
+		return "Server closed.";
 	}
 
 	/**
@@ -62,9 +82,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 	public static void main(String[] args) {
 		Chatserver chatserver = new Chatserver(args[0],
 				new Config("chatserver"), System.in, System.out);
-		IChatserverCli chatserverCli = new ChatServerCli(new Config("user"),"shell-server",System.in,System.out);
-		new Thread((Runnable) chatserverCli).start();
-		// TODO: start the chatserver
+		//TODO change Sys.in and Sys.out
+		chatserver.shell.register(chatserver);
+		executorService = Executors.newCachedThreadPool();
+		executorService.execute(chatserver.shell);
+		executorService.execute(chatserver);
 	}
 
 }
