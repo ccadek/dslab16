@@ -3,9 +3,12 @@ package client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import cli.Command;
+import cli.Shell;
 import util.Config;
 
 public class Client implements IClientCli, Runnable {
@@ -14,6 +17,9 @@ public class Client implements IClientCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
+	private String loggedInUser;
+	private Shell shell;
+	private static ExecutorService executorService;
 
 	/**
 	 * @param componentName
@@ -31,8 +37,21 @@ public class Client implements IClientCli, Runnable {
 		this.config = config;
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
-
+		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
 		// TODO
+	}
+
+	private boolean checkUser(String username, String pw){
+		String password = ResourceBundle.getBundle("user").getString(username);
+		if (password == null) {
+			return false;
+		}
+
+		if (password.equals(pw)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -40,48 +59,78 @@ public class Client implements IClientCli, Runnable {
 		// TODO
 	}
 
+	@Command
 	@Override
 	public String login(String username, String password) throws IOException {
-		return "!login "+username+" "+password;
+		if(loggedInUser != null){
+			return "Already logged in.";
+		}
+		if(checkUser(username,password)){
+			this.loggedInUser = username;
+			return "Successfully logged in.";
+		}
+		return "Wrong username or password.";
 	}
 
+	@Command
 	@Override
 	public String logout() throws IOException {
-		return "!logout";
+		if(loggedInUser == null){
+			return "Not logged in.";
+		}
+		loggedInUser = null;
+		return "Successfully logged out.";
 	}
 
+	@Command
 	@Override
 	public String send(String message) throws IOException {
 		return "!send "+message;
 	}
 
+	@Command
 	@Override
 	public String list() throws IOException {
 		return "!list";
 	}
 
+	@Command
 	@Override
 	public String msg(String username, String message) throws IOException {
 		return "!msg "+username+" "+message;
 	}
 
+	@Command
 	@Override
 	public String lookup(String username) throws IOException {
-		return "!lookup "+username;
+		if(username != null){
+			return username;
+		}
+		return "Wrong username or user not registered .";
 	}
 
+	@Command
 	@Override
 	public String register(String privateAddress) throws IOException {
-		return "!register "+privateAddress;
+		if(privateAddress != null) {
+			return privateAddress;
+		} else {
+			return "Not a valid private adress.";
+		}
 	}
-	
+
+	@Command
 	@Override
 	public String lastMsg() throws IOException {
 		return "!lastMsg";
 	}
 
+	@Command
 	@Override
 	public String exit() throws IOException {
+		logout();
+		shell.close();
+		executorService.shutdown();
 		return "!exit";
 	}
 
@@ -92,12 +141,10 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
-		IClientCli clientShell = new ClientCli(new Config("user"),"shell-client",System.in,System.out);
-		new Thread((Runnable) clientShell).start();
-		//ExecutorService e = Executors.newCachedThreadPool();
-		//e.execute(client);
-		//(new Thread(client)).start();
-		// TODO: start the client
+		client.shell.register(client);
+		executorService = Executors.newCachedThreadPool();
+		executorService.execute(client.shell);
+		executorService.execute(client);
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
