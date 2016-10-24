@@ -3,7 +3,10 @@ package chatserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -19,8 +22,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-	private ServerSocket serverSocket;
-	private List<String> loggedInUsers;
+	private static ServerSocket serverSocket;
+	private static DatagramSocket datagramSocket;
+	private Socket socket;
+	private DatagramPacket datagramPacket;
+	private static List<String> loggedInUsers;
 	private Shell shell;
 	private static ExecutorService executorService;
 
@@ -40,13 +46,17 @@ public class Chatserver implements IChatserverCli, Runnable {
 		this.config = config;
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
-		this.loggedInUsers = new ArrayList<>();
-		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
+		this.socket = null;
+		this.datagramPacket = null;
 	}
 
 	@Override
 	public void run() {
-		// TODO
+		if(socket != null){
+
+		} else if(datagramPacket != null){
+
+		}
 	}
 
 	@Command
@@ -68,10 +78,21 @@ public class Chatserver implements IChatserverCli, Runnable {
 		if(serverSocket != null){
 			serverSocket.close();
 		}
+		if(datagramSocket != null){
+			datagramSocket.close();
+		}
 		loggedInUsers.clear();
 		shell.close();
 		executorService.shutdown();
 		return "Server closed.";
+	}
+
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+	}
+
+	public void setDatagramPacket(DatagramPacket datagramPacket) {
+		this.datagramPacket = datagramPacket;
 	}
 
 	/**
@@ -82,11 +103,24 @@ public class Chatserver implements IChatserverCli, Runnable {
 	public static void main(String[] args) {
 		Chatserver chatserver = new Chatserver(args[0],
 				new Config("chatserver"), System.in, System.out);
-		//TODO change Sys.in and Sys.out
-		chatserver.shell.register(chatserver);
+		try {
+			serverSocket = new ServerSocket(chatserver.config.getInt("tcp.port"));
+			datagramSocket = new DatagramSocket(chatserver.config.getInt("udp.port"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		loggedInUsers = new ArrayList<>();
+		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = Executors.newCachedThreadPool();
+		TCPListener tcpListener = new TCPListener(chatserver.componentName, chatserver.config,
+				serverSocket, executorService);
+		UDPListener udpListener = new UDPListener(chatserver.componentName,chatserver.config,
+				datagramSocket,executorService);
+		chatserver.shell.register(chatserver);
+
 		executorService.execute(chatserver.shell);
-		executorService.execute(chatserver);
+		executorService.execute(tcpListener);
+		executorService.execute(udpListener);
 	}
 
 }
