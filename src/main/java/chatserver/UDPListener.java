@@ -5,6 +5,7 @@ import util.Config;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 
 public class UDPListener implements Runnable{
@@ -37,7 +38,11 @@ public class UDPListener implements Runnable{
 
                 executorService.execute(chatserver);
             }
-        } catch (IOException e){
+        } catch (SocketException e){
+            // thrown if executorService closes Thread
+        }
+        catch (IOException e){
+            e.printStackTrace();
             // dont't worry
         }
 

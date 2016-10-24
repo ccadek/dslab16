@@ -5,6 +5,7 @@ import util.Config;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -36,7 +37,11 @@ public class TCPListener implements Runnable{
                 executorService.execute(chatserver);
 
             }
-        } catch (IOException e) {
+        } catch (SocketException e){
+            // thrown if executorService closes thread
+        }
+        catch (IOException e) {
+            e.printStackTrace();
             // will be thrown, don't worry
         } finally {
             if(socket != null){
