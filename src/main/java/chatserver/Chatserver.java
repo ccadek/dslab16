@@ -26,6 +26,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private static List<String> loggedInUsers;
 	private Shell shell;
 	private static ExecutorService executorService;
+	private static final String INVALID_REQUEST = "This is not a valid request!";
 
 	/**
 	 * @param componentName
@@ -57,7 +58,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 			System.out.println("Request from client: "+request);
 
 			String[] reqArgs = request.split("\\s");
-			String response = "Not a valid request";
+			String response = INVALID_REQUEST;
 			if(reqArgs.length == 1){
 				if("!list".equals(reqArgs[0])){
 					//TODO implements real answer
