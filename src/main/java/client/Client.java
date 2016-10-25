@@ -1,9 +1,7 @@
 package client;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.ResourceBundle;
+import java.io.*;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -17,7 +15,6 @@ public class Client implements IClientCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-	private String loggedInUser;
 	private Shell shell;
 	private static ExecutorService executorService;
 
@@ -32,26 +29,13 @@ public class Client implements IClientCli, Runnable {
 	 *            the output stream to write the console output to
 	 */
 	public Client(String componentName, Config config,
-			InputStream userRequestStream, PrintStream userResponseStream) {
+				  InputStream userRequestStream, PrintStream userResponseStream) {
 		this.componentName = componentName;
 		this.config = config;
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
 		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
 		// TODO
-	}
-
-	private boolean checkUser(String username, String pw){
-		String password = ResourceBundle.getBundle("user").getString(username);
-		if (password == null) {
-			return false;
-		}
-
-		if (password.equals(pw)) {
-			return true;
-		}
-
-		return false;
 	}
 
 	@Override
@@ -62,66 +46,94 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String login(String username, String password) throws IOException {
-		if(loggedInUser != null){
-			return "Already logged in.";
-		}
-		if(checkUser(username,password)){
-			this.loggedInUser = username;
-			return "Successfully logged in.";
-		}
-		return "Wrong username or password.";
+		Socket socket = ClientFactory.createSocket();
+		PrintWriter out = ClientFactory.createPrintWriter(socket);
+		BufferedReader in = ClientFactory.createBufferedReader(socket);
+
+		out.println("!login "+username+" "+password);
+		String response = in.readLine();
+
+		closeConnection(socket,in,out);
+		return response;
 	}
 
 	@Command
 	@Override
 	public String logout() throws IOException {
-		if(loggedInUser == null){
-			return "Not logged in.";
-		}
-		loggedInUser = null;
-		return "Successfully logged out.";
+
+		Socket socket = ClientFactory.createSocket();
+		PrintWriter out = ClientFactory.createPrintWriter(socket);
+		BufferedReader in = ClientFactory.createBufferedReader(socket);
+
+		out.println("!logout");
+		String response = in.readLine();
+
+		closeConnection(socket,in,out);
+		return response;
 	}
 
 	@Command
 	@Override
 	public String send(String message) throws IOException {
-		return "!send "+message;
+		Socket socket = ClientFactory.createSocket();
+		PrintWriter out = ClientFactory.createPrintWriter(socket);
+
+		out.println("!send " + message);
+		closeConnection(socket,null,out);
+		return null;
 	}
 
 	@Command
 	@Override
 	public String list() throws IOException {
+		//TODO implement it
 		return "!list";
 	}
 
 	@Command
 	@Override
 	public String msg(String username, String message) throws IOException {
-		return "!msg "+username+" "+message;
+		Socket socket = ClientFactory.createSocket();
+		PrintWriter out = ClientFactory.createPrintWriter(socket);
+		BufferedReader in = ClientFactory.createBufferedReader(socket);
+
+		out.println("!msg "+username+" "+message);
+		String response = in.readLine();
+		closeConnection(socket,in,out);
+		return response;
+
 	}
 
 	@Command
 	@Override
 	public String lookup(String username) throws IOException {
-		if(username != null){
-			return username;
-		}
-		return "Wrong username or user not registered .";
+		Socket socket = ClientFactory.createSocket();
+		PrintWriter out = ClientFactory.createPrintWriter(socket);
+		BufferedReader in = ClientFactory.createBufferedReader(socket);
+
+		out.println("!lookup "+username);
+		String response = in.readLine();
+		closeConnection(socket,in,out);
+		return response;
+
 	}
 
 	@Command
 	@Override
 	public String register(String privateAddress) throws IOException {
-		if(privateAddress != null) {
-			return privateAddress;
-		} else {
-			return "Not a valid private adress.";
-		}
+		Socket socket = ClientFactory.createSocket();
+		PrintWriter out = ClientFactory.createPrintWriter(socket);
+		BufferedReader in = ClientFactory.createBufferedReader(socket);
+		//TODO create Serversocket, run thread...
+
+		closeConnection(socket,in,out);
+		return null;
 	}
 
 	@Command
 	@Override
 	public String lastMsg() throws IOException {
+		//TODO implement it
 		return "!lastMsg";
 	}
 
@@ -131,7 +143,19 @@ public class Client implements IClientCli, Runnable {
 		logout();
 		shell.close();
 		executorService.shutdown();
-		return "!exit";
+		return null;
+	}
+
+	private void closeConnection(Socket s, BufferedReader b, PrintWriter p) throws IOException {
+		if(s != null){
+			s.close();
+		}
+		if(b != null){
+			b.close();
+		}
+		if(p != null){
+			p.close();
+		}
 	}
 
 	/**
