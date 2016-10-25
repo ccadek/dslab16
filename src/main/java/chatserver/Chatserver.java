@@ -3,10 +3,7 @@ package chatserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +52,32 @@ public class Chatserver implements IChatserverCli, Runnable {
 		if(socket != null){
 
 		} else if(datagramPacket != null){
+			byte[] buffer = new byte[1024];
+			String request = new String(datagramPacket.getData());
+			System.out.println("Request from client: "+request);
 
+			String[] reqArgs = request.split("\\s");
+			String response = "Not a valid request";
+			if(reqArgs.length == 1){
+				if("!list".equals(reqArgs[0])){
+					//TODO implements real answer
+					response = "something something";
+				}
+			}
+			InetAddress address = datagramPacket.getAddress();
+			int port = datagramPacket.getPort();
+			//TODO what if the response is too big?
+			buffer = response.getBytes();
+			datagramPacket = new DatagramPacket(buffer,buffer.length,address,port);
+			try {
+				//TODO isn't the datagramSocket blocked by the Listener?
+				datagramSocket.send(datagramPacket);
+			} catch (SocketException e){
+				//thrown if executorservice shuts down
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
