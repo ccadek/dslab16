@@ -60,7 +60,6 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String logout() throws IOException {
-
 		Socket socket = ClientFactory.createSocket();
 		PrintWriter out = ClientFactory.createPrintWriter(socket);
 		BufferedReader in = ClientFactory.createBufferedReader(socket);
@@ -77,10 +76,13 @@ public class Client implements IClientCli, Runnable {
 	public String send(String message) throws IOException {
 		Socket socket = ClientFactory.createSocket();
 		PrintWriter out = ClientFactory.createPrintWriter(socket);
+		BufferedReader in = ClientFactory.createBufferedReader(socket);
 
 		out.println("!send " + message);
-		closeConnection(socket,null,out);
-		return null;
+		String response = in.readLine();
+
+		closeConnection(socket,in,out);
+		return response;
 	}
 
 	@Command
@@ -99,6 +101,7 @@ public class Client implements IClientCli, Runnable {
 
 		out.println("!msg "+username+" "+message);
 		String response = in.readLine();
+
 		closeConnection(socket,in,out);
 		return response;
 
@@ -113,6 +116,7 @@ public class Client implements IClientCli, Runnable {
 
 		out.println("!lookup "+username);
 		String response = in.readLine();
+		
 		closeConnection(socket,in,out);
 		return response;
 
