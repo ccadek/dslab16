@@ -7,7 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.DatagramSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 /*
     Simple class for creating instances of commonly used classes
@@ -26,5 +28,9 @@ public class ClientFactory {
 
     public static PrintWriter createPrintWriter(Socket socket) throws IOException {
         return new PrintWriter(socket.getOutputStream(),true);
+    }
+
+    public static DatagramSocket createDatagramSocket() throws SocketException {
+        return new DatagramSocket();
     }
 }
