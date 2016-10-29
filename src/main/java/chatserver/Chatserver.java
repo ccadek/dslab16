@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,9 +22,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private static DatagramSocket datagramSocket;
 	private Socket socket;
 	private DatagramPacket datagramPacket;
-	private static List<String> loggedInUsers;
 	private Shell shell;
 	private static ExecutorService executorService;
+	private static HashMap<String,InetAddress> loggedInUsers;
+	private static HashMap<String, InetAddress> registeredUsers;
+
 	private static final String INVALID_REQUEST = "This is not a valid request!";
 
 	/**
@@ -89,8 +90,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 			return "No users logged in";
 		}
 		String rtn = "";
-		for(int i = 0; i < loggedInUsers.size(); i++){
-			rtn += loggedInUsers.get(i)+",";
+		for(String str : loggedInUsers.keySet()){
+			rtn += str+", ";
 		}
 		return rtn;
 	}
@@ -132,7 +133,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		loggedInUsers = new ArrayList<>();
+		loggedInUsers = new HashMap<>();
+		registeredUsers = new HashMap<>();
+
 		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = Executors.newCachedThreadPool();
 		TCPListener tcpListener = new TCPListener(chatserver.componentName, chatserver.config,
