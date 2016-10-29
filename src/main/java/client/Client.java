@@ -1,6 +1,9 @@
 package client;
 
 import java.io.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,7 +92,20 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String list() throws IOException {
 		//TODO implement it
-		return "!list";
+		DatagramSocket datagramSocket = ClientFactory.createDatagramSocket();
+		byte[] buffer = new byte[1024];
+		buffer = "!list".getBytes();
+		DatagramPacket packet = new DatagramPacket(buffer,buffer.length,
+				InetAddress.getByName(config.getString("chatserver.host")),config.getInt("chatserver.udp.port"));
+		datagramSocket.send(packet);
+
+		buffer = new byte[1024];
+		packet = new DatagramPacket(buffer,buffer.length);
+		datagramSocket.receive(packet);
+		String response = "Request was not handled by server";
+		response = new String(packet.getData());
+		datagramSocket.close();
+		return response;
 	}
 
 	@Command
@@ -116,7 +132,7 @@ public class Client implements IClientCli, Runnable {
 
 		out.println("!lookup "+username);
 		String response = in.readLine();
-		
+
 		closeConnection(socket,in,out);
 		return response;
 
@@ -144,7 +160,7 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String exit() throws IOException {
-		logout();
+		//logout();
 		shell.close();
 		executorService.shutdown();
 		return null;
