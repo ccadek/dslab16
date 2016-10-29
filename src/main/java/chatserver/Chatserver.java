@@ -56,12 +56,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 		} else if(datagramPacket != null){
 			byte[] buffer = new byte[1024];
 			String request = new String(datagramPacket.getData());
-			System.out.println("Request from client: "+request);
 
 			String[] reqArgs = request.split("\\s");
 			String response = INVALID_REQUEST;
 			if(reqArgs.length == 1){
-				if("!list".equals(reqArgs[0])){
+				if(request.trim().equals("!list")){
 					//TODO implements real answer
 					response = "something something";
 				}
