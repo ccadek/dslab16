@@ -1,10 +1,9 @@
 package chatserver;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,10 +23,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private DatagramPacket datagramPacket;
 	private Shell shell;
 	private static ExecutorService executorService;
-	private static HashMap<String,InetAddress> loggedInUsers;
-	private static HashMap<String, InetAddress> registeredUsers;
+	private static ConcurrentHashMap<String,InetSocketAddress> loggedInUsers;
+	private static ConcurrentHashMap<String, InetSocketAddress> registeredUsers;
 
-	private static final String INVALID_REQUEST = "This is not a valid request!";
+	private static final String INVALID_REQUEST = "This is not a valid request.";
+	private static final String NOT_LOGGED_IN = "Not logged in.";
 
 	/**
 	 * @param componentName
@@ -40,7 +40,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	 *            the output stream to write the console output to
 	 */
 	public Chatserver(String componentName, Config config,
-			InputStream userRequestStream, PrintStream userResponseStream) {
+	                  InputStream userRequestStream, PrintStream userResponseStream) {
 		this.componentName = componentName;
 		this.config = config;
 		this.userRequestStream = userRequestStream;
@@ -49,9 +49,106 @@ public class Chatserver implements IChatserverCli, Runnable {
 		this.datagramPacket = null;
 	}
 
+	private boolean checkUser(String username, String password){
+		Set<String> users = config.listKeys();
+		if(users.contains(username) && config.getString(username).equals(password)){
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isUserLoggedIn(String username){
+		return loggedInUsers.containsKey(username);
+	}
+
+	private boolean isUserLoggedIn(SocketAddress user){
+		return loggedInUsers.values().contains(user);
+	}
+
 	@Override
 	public void run() {
 		if(socket != null){
+			BufferedReader in = new BufferedReader(new InputStreamReader(userRequestStream));
+			PrintWriter out = new PrintWriter(userResponseStream,true);
+			String request = "";
+			try {
+				request = in.readLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			String[] requestParts = request.split("\\s");
+
+			// !login
+			if(request.trim().startsWith("!login") && requestParts.length == 3){
+				if(checkUser(requestParts[1],requestParts[2])){
+					loggedInUsers.put(requestParts[1], (InetSocketAddress) socket.getRemoteSocketAddress());
+					out.println("Successful login.");
+				} else {
+					out.println("Wrong username or password.");
+				}
+			}
+
+			if(!isUserLoggedIn(socket.getRemoteSocketAddress())){
+				out.println("Not logged in.");
+			}
+
+			// !logout
+			else if(request.trim().startsWith("!logout") && requestParts.length == 1){
+				SocketAddress user = socket.getRemoteSocketAddress();
+				if(loggedInUsers.values().contains(user)) {
+					loggedInUsers.values().remove(user);
+					registeredUsers.values().remove(user);
+					out.println("Successfully logged out.");
+				} else {
+					out.println("Not logged in.");
+				}
+			}
+
+			// !send msg
+			else if(request.trim().startsWith("!send") && requestParts.length == 2){
+				String message = "";
+				String username = "";
+				//TODO really done?
+				for(Map.Entry entry: loggedInUsers.entrySet()){
+					if(socket.getRemoteSocketAddress().equals(entry.getValue())){
+						username = (String) entry.getKey();
+						break; //breaking because its one to one map
+					}
+				}
+				for(int i = 1; i < requestParts.length; i++){
+					message += requestParts[i];
+				}
+				for(InetSocketAddress adress : loggedInUsers.values()){
+					if(adress == socket.getRemoteSocketAddress()){
+						continue;
+					}
+					try {
+						Socket s = ServerFactory.createSocket(adress.getAddress(),adress.getPort());
+						PrintWriter messageOut = ServerFactory.createPrintWriter(socket);
+						messageOut.println(username+": "+message);
+						messageOut.close();
+						s.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+			try {
+				in.close();
+				out.close();
+				socket.close();
+				in.close();
+				out.close();
+			}
+			catch(SocketException e){
+				// In case executorservice shuts down the socket from another thread
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			out.println(INVALID_REQUEST);
+
 
 		} else if(datagramPacket != null){
 			byte[] buffer = new byte[1024];
@@ -132,12 +229,12 @@ public class Chatserver implements IChatserverCli, Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		loggedInUsers = new HashMap<>();
-		registeredUsers = new HashMap<>();
+		loggedInUsers = new ConcurrentHashMap<>();
+		registeredUsers = new ConcurrentHashMap<>();
 
 		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = Executors.newCachedThreadPool();
-		TCPListener tcpListener = new TCPListener(chatserver.componentName, chatserver.config,
+		TCPListener tcpListener = new TCPListener(chatserver.componentName, new Config("user"),
 				serverSocket, executorService);
 		UDPListener udpListener = new UDPListener(chatserver.componentName,chatserver.config,
 				datagramSocket,executorService);

@@ -19,6 +19,9 @@ public class Client implements IClientCli, Runnable {
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
 	private Shell shell;
+	private Socket socket;
+	private BufferedReader in;
+	private PrintWriter out;
 	private static ExecutorService executorService;
 
 	/**
@@ -38,6 +41,14 @@ public class Client implements IClientCli, Runnable {
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
 		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
+		try {
+			this.socket = ClientFactory.createSocket();
+			this.out = ClientFactory.createPrintWriter(socket);
+			this.in = ClientFactory.createBufferedReader(socket);
+
+		} catch(IOException e){
+
+		}
 		// TODO
 	}
 
@@ -49,42 +60,27 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String login(String username, String password) throws IOException {
-		Socket socket = ClientFactory.createSocket();
-		PrintWriter out = ClientFactory.createPrintWriter(socket);
-		BufferedReader in = ClientFactory.createBufferedReader(socket);
-
 		out.println("!login "+username+" "+password);
 		String response = in.readLine();
 
-		closeConnection(socket,in,out);
 		return response;
 	}
 
 	@Command
 	@Override
 	public String logout() throws IOException {
-		Socket socket = ClientFactory.createSocket();
-		PrintWriter out = ClientFactory.createPrintWriter(socket);
-		BufferedReader in = ClientFactory.createBufferedReader(socket);
-
 		out.println("!logout");
 		String response = in.readLine();
 
-		closeConnection(socket,in,out);
 		return response;
 	}
 
 	@Command
 	@Override
 	public String send(String message) throws IOException {
-		Socket socket = ClientFactory.createSocket();
-		PrintWriter out = ClientFactory.createPrintWriter(socket);
-		BufferedReader in = ClientFactory.createBufferedReader(socket);
-
 		out.println("!send " + message);
 		String response = in.readLine();
 
-		closeConnection(socket,in,out);
 		return response;
 	}
 
@@ -111,14 +107,9 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String msg(String username, String message) throws IOException {
-		Socket socket = ClientFactory.createSocket();
-		PrintWriter out = ClientFactory.createPrintWriter(socket);
-		BufferedReader in = ClientFactory.createBufferedReader(socket);
-
 		out.println("!msg "+username+" "+message);
 		String response = in.readLine();
 
-		closeConnection(socket,in,out);
 		return response;
 
 	}
@@ -126,14 +117,9 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String lookup(String username) throws IOException {
-		Socket socket = ClientFactory.createSocket();
-		PrintWriter out = ClientFactory.createPrintWriter(socket);
-		BufferedReader in = ClientFactory.createBufferedReader(socket);
-
 		out.println("!lookup "+username);
 		String response = in.readLine();
 
-		closeConnection(socket,in,out);
 		return response;
 
 	}
@@ -141,12 +127,8 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String register(String privateAddress) throws IOException {
-		Socket socket = ClientFactory.createSocket();
-		PrintWriter out = ClientFactory.createPrintWriter(socket);
-		BufferedReader in = ClientFactory.createBufferedReader(socket);
 		//TODO create Serversocket, run thread...
 
-		closeConnection(socket,in,out);
 		return null;
 	}
 
@@ -161,6 +143,7 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String exit() throws IOException {
 		//logout();
+		closeConnection(socket,in,out);
 		shell.close();
 		executorService.shutdown();
 		return null;
