@@ -23,8 +23,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private DatagramPacket datagramPacket;
 	private Shell shell;
 	private static ExecutorService executorService;
-	private static ConcurrentHashMap<String,InetSocketAddress> loggedInUsers;
-	private static ConcurrentHashMap<String, InetSocketAddress> registeredUsers;
+	private static volatile UserMap users;
+	//private static ConcurrentHashMap<String,InetSocketAddress> loggedInUsers;
+	//private static ConcurrentHashMap<String, InetSocketAddress> registeredUsers;
 
 	private static final String INVALID_REQUEST = "This is not a valid request.";
 	private static final String NOT_LOGGED_IN = "Not logged in.";
@@ -40,7 +41,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	 *            the output stream to write the console output to
 	 */
 	public Chatserver(String componentName, Config config,
-	                  InputStream userRequestStream, PrintStream userResponseStream) {
+					  InputStream userRequestStream, PrintStream userResponseStream) {
 		this.componentName = componentName;
 		this.config = config;
 		this.userRequestStream = userRequestStream;
@@ -57,14 +58,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 		return false;
 	}
 
-	private boolean isUserLoggedIn(String username){
-		return loggedInUsers.containsKey(username);
-	}
-
-	private boolean isUserLoggedIn(SocketAddress user){
-		return loggedInUsers.values().contains(user);
-	}
-
 	@Override
 	public void run() {
 		if(socket != null){
@@ -72,32 +65,25 @@ public class Chatserver implements IChatserverCli, Runnable {
 			PrintWriter out = new PrintWriter(userResponseStream,true);
 			String request = "";
 			try {
-				request = in.readLine();
+				request = in.readLine().trim();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			String[] requestParts = request.split("\\s");
 
 			// !login
-			if(request.trim().startsWith("!login") && requestParts.length == 3){
+			if(request.startsWith("!login") && requestParts.length == 3){
 				if(checkUser(requestParts[1],requestParts[2])){
-					loggedInUsers.put(requestParts[1], (InetSocketAddress) socket.getRemoteSocketAddress());
+					users.loginUser(requestParts[1], (InetSocketAddress) socket.getRemoteSocketAddress());
 					out.println("Successful login.");
 				} else {
 					out.println("Wrong username or password.");
 				}
 			}
 
-			if(!isUserLoggedIn(socket.getRemoteSocketAddress())){
-				out.println("Not logged in.");
-			}
-
-			// !logout
-			else if(request.trim().startsWith("!logout") && requestParts.length == 1){
+			else if(request.equals("!logout")){
 				SocketAddress user = socket.getRemoteSocketAddress();
-				if(loggedInUsers.values().contains(user)) {
-					loggedInUsers.values().remove(user);
-					registeredUsers.values().remove(user);
+				if(users.logoutUser((InetSocketAddress) user)){
 					out.println("Successfully logged out.");
 				} else {
 					out.println("Not logged in.");
@@ -105,20 +91,15 @@ public class Chatserver implements IChatserverCli, Runnable {
 			}
 
 			// !send msg
-			else if(request.trim().startsWith("!send") && requestParts.length == 2){
+			else if(request.startsWith("!send") && requestParts.length == 2){
 				String message = "";
-				String username = "";
-				//TODO really done?
-				for(Map.Entry entry: loggedInUsers.entrySet()){
-					if(socket.getRemoteSocketAddress().equals(entry.getValue())){
-						username = (String) entry.getKey();
-						break; //breaking because its one to one map
-					}
-				}
+				String username = null;
+				username = users.getLoggedInUsername((InetSocketAddress) socket.getRemoteSocketAddress());
+
 				for(int i = 1; i < requestParts.length; i++){
 					message += requestParts[i];
 				}
-				for(InetSocketAddress adress : loggedInUsers.values()){
+				for(InetSocketAddress adress : users.getAllLoggedInUsersAddresses()){
 					if(adress == socket.getRemoteSocketAddress()){
 						continue;
 					}
@@ -138,8 +119,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 				in.close();
 				out.close();
 				socket.close();
-				in.close();
-				out.close();
 			}
 			catch(SocketException e){
 				// In case executorservice shuts down the socket from another thread
@@ -157,7 +136,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 			String[] reqArgs = request.split("\\s");
 			String response = INVALID_REQUEST;
 			if(reqArgs.length == 1){
-				if(request.trim().equals("!list")){
+				if(request.equals("!list")){
 					//TODO implements real answer
 					response = "something something";
 				}
@@ -182,11 +161,12 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Command
 	@Override
 	public String users() throws IOException {
-		if(loggedInUsers.size() == 0){
+		List<String> usernames = users.getAllLoggedInUsersnames();
+		if(usernames.size() == 0){
 			return "No users logged in";
 		}
 		String rtn = "";
-		for(String str : loggedInUsers.keySet()){
+		for(String str : usernames){
 			rtn += str+", ";
 		}
 		return rtn;
@@ -201,7 +181,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		if(datagramSocket != null){
 			datagramSocket.close();
 		}
-		loggedInUsers.clear();
+		users.clear();
 		shell.close();
 		executorService.shutdown();
 		return "Server closed.";
@@ -229,8 +209,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		loggedInUsers = new ConcurrentHashMap<>();
-		registeredUsers = new ConcurrentHashMap<>();
+		users = new UserMap();
 
 		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = Executors.newCachedThreadPool();
