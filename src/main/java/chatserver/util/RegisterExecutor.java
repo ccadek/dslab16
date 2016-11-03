@@ -1,9 +1,19 @@
 package chatserver.util;
 
-/**
- * Created by purzel on 02.11.16.
- */
+import chatserver.Chatserver;
+
+import java.util.List;
+
 public class RegisterExecutor implements IRequestExecutor {
-	public RegisterExecutor(String arguments) {
+
+	private List<String> arguments;
+
+	public RegisterExecutor(List<String> arguments) {
+		this.arguments = arguments;
+	}
+
+	@Override
+	public void execute(Chatserver chatserver) {
+
 	}
 }

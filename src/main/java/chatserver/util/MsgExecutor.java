@@ -1,7 +1,13 @@
 package chatserver.util;
 
-/**
- * Created by purzel on 02.11.16.
- */
+import chatserver.Chatserver;
+
 public class MsgExecutor implements IRequestExecutor {
+
+
+
+	@Override
+	public void execute(Chatserver chatserver) {
+
+	}
 }

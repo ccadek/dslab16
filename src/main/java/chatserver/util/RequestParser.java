@@ -1,5 +1,6 @@
 package chatserver.util;
 
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -10,17 +11,17 @@ public class RequestParser{
 	private String command;
 	private List<String> arguments;
 	private Socket socket;
-	private DatagramSocket datagramSocket;
+	private DatagramPacket datagramPacket;
 
-	public RequestParser(String request, Socket socket, DatagramSocket datagramSocket){
+	public RequestParser(String request, Socket socket, DatagramPacket datagramPacket){
 		String[] parts = request.trim().split("\\s");
 		command = parts[0];
-		this.arguments = new ArrayList<>():
+		this.arguments = new ArrayList<>();
 		for(int i = 1; i < parts.length; i++){
 			arguments.add(parts[i]);
 		}
 		this.socket = socket;
-		this.datagramSocket = datagramSocket;
+		this.datagramPacket = datagramPacket;
 	}
 
 	public String getCommand(){
@@ -41,7 +42,7 @@ public class RequestParser{
 			return new MsgExecutor();
 		}
 		else if(command.equals("!list")){
-			return new ListExecutor(datagramSocket);
+			return new ListExecutor(datagramPacket);
 		}
 		else if (command.equals("!register")){
 			return new RegisterExecutor(arguments);

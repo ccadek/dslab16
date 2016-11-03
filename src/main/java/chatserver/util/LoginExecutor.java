@@ -3,6 +3,7 @@ package chatserver.util;
 import chatserver.Chatserver;
 import util.Config;
 
+import java.net.Socket;
 import java.util.List;
 import java.util.Set;
 
@@ -17,17 +18,17 @@ public class LoginExecutor implements IRequestExecutor {
 	@Override
 	public void execute(Chatserver chatserver) {
 		if(arguments.size() != 2){
-			chatserver.answer("Not a valid request.");
+			chatserver.answer(Answers.INVALID_REQUEST);
 		}
 		Config config = new Config("user");
 		Set<String> users = config.listKeys();
 		String username = arguments.get(0);
 		String password = arguments.get(1);
 		if(users.contains(username) && config.getString(username).equals(password)){
-			chatserver.login(username);
-			chatserver.answer("Successfully logged in.");
+			chatserver.loginUser(username);
+			chatserver.answer(Answers.SUCCESS_LOGIN);
 		} else {
-			chatserver.answer("Not a valid login");
+			chatserver.answer(Answers.INVALID_LOGIN);
 		}
 	}
 }

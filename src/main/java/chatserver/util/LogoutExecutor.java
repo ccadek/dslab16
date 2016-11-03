@@ -16,11 +16,11 @@ public class LogoutExecutor implements IRequestExecutor {
 
 	@Override
 	public void execute(Chatserver chatserver) {
-		boolean logout = chatserver.logout((InetSocketAddress) socket.getRemoteSocketAddress());
+		boolean logout = chatserver.logoutUser((InetSocketAddress) socket.getRemoteSocketAddress());
 		if(logout){
-			chatserver.answer("Successfully logged out.");
+			chatserver.answer(Answers.SUCCESS_LOGOUT);
 		} else{
-			chatserver.answer("Not logged in.");
+			chatserver.answer(Answers.NOT_LOGGED_IN);
 		}
 	}
 }
