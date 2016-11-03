@@ -1,7 +1,19 @@
 package chatserver.util;
 
-/**
- * Created by purzel on 02.11.16.
- */
+import chatserver.Chatserver;
+
+import java.net.DatagramSocket;
+
 public class ListExecutor implements IRequestExecutor {
+
+	private DatagramSocket datagramSocket;
+
+	public ListExecutor(DatagramSocket datagramSocket) {
+		this.datagramSocket = datagramSocket;
+	}
+
+	@Override
+	public void execute(Chatserver chatserver) {
+
+	}
 }
