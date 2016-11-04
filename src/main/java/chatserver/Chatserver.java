@@ -3,11 +3,10 @@ package chatserver;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import chatserver.util.IRequestExecutor;
+import chatserver.util.Answers;
 import chatserver.util.RequestParser;
 import cli.Command;
 import cli.Shell;
@@ -28,6 +27,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private static volatile UserMap users;
 	private BufferedReader in;
 	private PrintWriter out;
+	private boolean isRunning;
 
 	/**
 	 * @param componentName
@@ -49,6 +49,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		this.datagramPacket = null;
 		this.in = null;
 		this.out = null;
+		isRunning = true;
 	}
 
 	private boolean checkUser(String username, String password){
@@ -77,33 +78,47 @@ public class Chatserver implements IChatserverCli, Runnable {
 	}
 
 	public void answer(String message){
-		out.println(message);
+		if(socket != null) {
+			out.println(message);
+		} else {
+			//TODO implement DatagramSocketanswer
+		}
 	}
 
-	public void answer(DatagramPacket packet) throws IOException{
+	private void answer(DatagramPacket packet) throws IOException{
 		//TODO implement
+	}
+
+	public void closeConnection(){
+
 	}
 
 	@Override
 	public void run() {
 		String request = "";
-		if(socket != null){
-			in = new BufferedReader(new InputStreamReader(userRequestStream));
-			out = new PrintWriter(userResponseStream,true);
-			request = "";
-			try {
-				request = in.readLine().trim();
-			} catch (IOException e) {
-				e.printStackTrace();
+		while(!executorService.isShutdown()) {
+			if (socket != null) {
+				in = new BufferedReader(new InputStreamReader(userRequestStream));
+				out = new PrintWriter(userResponseStream, true);
+				request = "";
+				try {
+					request = in.readLine().trim();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else if (datagramPacket != null) {
+				byte[] buffer = new byte[1024];
+				request = new String(datagramPacket.getData());
 			}
-		} else if(datagramPacket != null){
-			byte[] buffer = new byte[1024];
-			request = new String(datagramPacket.getData());
-		}
 
-		// delegate query to requestexecutor
-		RequestParser parser = new RequestParser(request,socket,datagramPacket);
-		parser.getRequestExecutor().execute(this);
+			// delegate query to requestexecutor
+			try {
+				RequestParser parser = new RequestParser(request, socket, datagramPacket);
+				parser.getRequestExecutor().execute(this);
+			} catch (IllegalArgumentException e){
+				answer(Answers.INVALID_REQUEST);
+			}
+		}
 
 		try {
 			if (in != null) {
@@ -111,6 +126,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 			}
 			if (out != null) {
 				out.close();
+			}
+			if(socket != null){
+				socket.close();
 			}
 		} catch (SocketException e){
 

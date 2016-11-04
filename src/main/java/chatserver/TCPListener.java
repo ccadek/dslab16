@@ -29,13 +29,11 @@ public class TCPListener implements Runnable{
         Socket socket = null;
         try {
             while(!executorService.isShutdown()){
-
                 socket = serverSocket.accept();
                 Chatserver chatserver = new Chatserver(componentName,config,
                         socket.getInputStream(),new PrintStream(socket.getOutputStream()));
                 chatserver.setSocket(socket);
                 executorService.execute(chatserver);
-
             }
         } catch (SocketException e){
             // thrown if executorService closes thread
@@ -44,9 +42,9 @@ public class TCPListener implements Runnable{
             e.printStackTrace();
             // will be thrown, don't worry
         } finally {
-            if(socket != null){
+            if(serverSocket != null){
                 try {
-                    socket.close();
+                    serverSocket.close();
                 } catch (IOException e) {
                     // very unlikely
                 }
