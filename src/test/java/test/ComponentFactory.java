@@ -75,9 +75,9 @@ public class ComponentFactory {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		chatserver.serverSocket = serverSocket;
-		chatserver.datagramSocket = datagramSocket;
-		chatserver.users = new UserMap();
+		chatserver.setServerSocket(serverSocket);
+		chatserver.setDatagramSocket(datagramSocket);
+		chatserver.setUserMap(new UserMap());
 
 		chatserver.shell = new Shell("chatserver",System.in,System.out);
 		ExecutorService executorService = Executors.newCachedThreadPool();
