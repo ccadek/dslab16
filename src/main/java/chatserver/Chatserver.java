@@ -47,8 +47,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 		this.userResponseStream = userResponseStream;
 		this.socket = null;
 		this.datagramPacket = null;
-		this.in = null;
-		this.out = null;
+		this.in = new BufferedReader(new InputStreamReader(userRequestStream));
+		this.out = new PrintWriter(userResponseStream, true);
 		isRunning = true;
 	}
 
@@ -90,7 +90,17 @@ public class Chatserver implements IChatserverCli, Runnable {
 	}
 
 	public void closeConnection(){
+		try{
+			in.close();
+			out.close();
+			socket.close();
+		}
+		catch (SocketException e){
+			// just in case socket is closed before it is closed in here
+		}
+		catch (IOException e) {
 
+		}
 	}
 
 	@Override
@@ -98,8 +108,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 		String request = "";
 		while(!executorService.isShutdown()) {
 			if (socket != null) {
-				in = new BufferedReader(new InputStreamReader(userRequestStream));
-				out = new PrintWriter(userResponseStream, true);
 				request = "";
 				try {
 					request = in.readLine().trim();
