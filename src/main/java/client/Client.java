@@ -161,6 +161,10 @@ public class Client implements IClientCli, Runnable {
 		}
 	}
 
+	public Shell getShell(){
+		return shell;
+	}
+
 	/**
 	 * @param args
 	 *            the first argument is the name of the {@link Client} component

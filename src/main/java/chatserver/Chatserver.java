@@ -18,13 +18,13 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-	private static ServerSocket serverSocket;
-	private static DatagramSocket datagramSocket;
+	public static ServerSocket serverSocket;
+	public static DatagramSocket datagramSocket;
 	private Socket socket;
 	private DatagramPacket datagramPacket;
-	private Shell shell;
+	public Shell shell;
 	private static ExecutorService executorService;
-	private static volatile UserMap users;
+	public static UserMap users;
 	private BufferedReader in;
 	private PrintWriter out;
 	private boolean isRunning;
@@ -85,7 +85,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		}
 	}
 
-	private void answer(DatagramPacket packet) throws IOException{
+	public void answer(DatagramPacket packet) throws IOException{
 		//TODO implement
 	}
 
@@ -94,6 +94,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 			in.close();
 			out.close();
 			socket.close();
+			serverSocket.close();
+			datagramSocket.close();
 		}
 		catch (SocketException e){
 			// just in case socket is closed before it is closed in here
@@ -127,24 +129,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 				answer(Answers.INVALID_REQUEST);
 			}
 		}
-
-		try {
-			if (in != null) {
-				in.close();
-			}
-			if (out != null) {
-				out.close();
-			}
-			if(socket != null){
-				socket.close();
-			}
-		} catch (SocketException e){
-
-		}
-		catch (IOException e){
-
-		}
-
+		// close Datagram-/ServerSocket, Socket and its reader and printer
+		closeConnection();
 	}
 
 	@Command
@@ -178,6 +164,10 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 	public void setSocket(Socket socket) {
 		this.socket = socket;
+	}
+
+	public void setExecutorService(ExecutorService service){
+		executorService = service;
 	}
 
 	public void setDatagramPacket(DatagramPacket datagramPacket) {

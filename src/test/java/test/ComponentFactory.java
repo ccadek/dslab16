@@ -1,14 +1,20 @@
 package test;
 
+import chatserver.*;
+import cli.Shell;
 import nameserver.INameserverCli;
 import nameserver.Nameserver;
 import util.Config;
 import util.TestInputStream;
 import util.TestOutputStream;
-import chatserver.Chatserver;
-import chatserver.IChatserverCli;
 import client.Client;
 import client.IClientCli;
+
+import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Provides methods for starting an arbitrary amount of various components.
@@ -32,7 +38,13 @@ public class ComponentFactory {
 		 * following lines but you do not have to.
 		 */
 		Config config = new Config("client");
-		return new Client(componentName, config, in, out);
+		Client client = new Client(componentName, new Config("client"), in,
+				out);
+		client.getShell().register(client);
+		ExecutorService executorService = Executors.newCachedThreadPool();
+		executorService.execute(client.getShell());
+		executorService.execute(client);
+		return client;
 	}
 
 	/**
@@ -52,8 +64,34 @@ public class ComponentFactory {
 		 * instance. Depending on your code you might want to modify the
 		 * following lines but you do not have to.
 		 */
-		Config config = new Config("chatserver");
-		return new Chatserver(componentName, config, in, out);
+		Config config = new Config(componentName);
+		Chatserver chatserver = new Chatserver(componentName,
+				config, in, out);
+		ServerSocket serverSocket = null;
+		DatagramSocket datagramSocket = null;
+		try {
+			serverSocket = new ServerSocket(config.getInt("tcp.port"));
+			datagramSocket = new DatagramSocket(config.getInt("udp.port"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		chatserver.serverSocket = serverSocket;
+		chatserver.datagramSocket = datagramSocket;
+		chatserver.users = new UserMap();
+
+		chatserver.shell = new Shell("chatserver",System.in,System.out);
+		ExecutorService executorService = Executors.newCachedThreadPool();
+		chatserver.setExecutorService(executorService);
+		TCPListener tcpListener = new TCPListener("chatserver", new Config("user"),
+				serverSocket, executorService);
+		UDPListener udpListener = new UDPListener("chatserver",config,
+				datagramSocket,executorService);
+		chatserver.shell.register(chatserver);
+
+		executorService.execute(chatserver.shell);
+		executorService.execute(tcpListener);
+		executorService.execute(udpListener);
+		return chatserver;
 	}
 
 	// --- Methods needed for Lab 2. Please note that you do not have to

@@ -22,7 +22,7 @@ public class LoginExecutor implements IRequestExecutor {
 		}
 		Config config = new Config("user");
 		Set<String> users = config.listKeys();
-		String username = arguments.get(0);
+		String username = arguments.get(0)+".password";
 		String password = arguments.get(1);
 		if(users.contains(username) && config.getString(username).equals(password)){
 			chatserver.loginUser(username);
