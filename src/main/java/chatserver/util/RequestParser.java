@@ -38,6 +38,9 @@ public class RequestParser{
 		else if(command.equals("!send")){
 			return new SendExecutor(arguments, socket);
 		}
+		else if(command.equals("!lookup")){
+			return new LookupExecutor(arguments);
+		}
 		else if(command.equals("!msg")){
 			return new MsgExecutor();
 		}

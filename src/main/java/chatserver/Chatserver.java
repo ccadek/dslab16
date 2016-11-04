@@ -71,6 +71,10 @@ public class Chatserver implements IChatserverCli, Runnable {
 		return users.getAllLoggedInUsersAddresses();
 	}
 
+	public InetSocketAddress getRegisteredUserAddress(String username){
+		return users.getRegisteredUser(username);
+	}
+
 	public void answer(String message){
 		if(socket != null) {
 			out.println(message);
