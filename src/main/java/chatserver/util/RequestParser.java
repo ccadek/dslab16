@@ -51,7 +51,7 @@ public class RequestParser{
 			return new RegisterExecutor(arguments);
 		}
 		else {
-			throw new IllegalArgumentException("Not a valid request.");
+			throw new IllegalArgumentException();
 		}
 	}
 }

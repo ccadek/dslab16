@@ -75,16 +75,13 @@ public class Chatserver implements IChatserverCli, Runnable {
 		return users.getRegisteredUser(username);
 	}
 
+	// only called when socket != null
 	public void answer(String message){
-		if(socket != null) {
-			out.println(message);
-		} else {
-			//TODO implement DatagramSocketanswer
-		}
+		out.println(message);
 	}
 
 	public void answer(DatagramPacket packet) throws IOException{
-		//TODO implement
+		datagramSocket.send(packet);
 	}
 
 	public void stop(){
