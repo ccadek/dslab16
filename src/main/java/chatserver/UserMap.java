@@ -2,10 +2,7 @@ package chatserver;
 
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserMap {
 
@@ -73,7 +70,10 @@ public class UserMap {
 	}
 
 	public synchronized List<String> getAllLoggedInUsernames(){
-		return loggedInUsers.keySet().
+		Set<String> set = loggedInUsers.keySet();
+		List<String> list = new ArrayList<>();
+		list.addAll(set);
+		return list;
 	}
 
 	public synchronized boolean isUserLoggedIn(String username){
