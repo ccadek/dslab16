@@ -20,6 +20,7 @@ public class Client implements IClientCli, Runnable {
 	private PrintStream userResponseStream;
 	private Shell shell;
 	private Socket socket;
+	private DatagramSocket datagramSocket;
 	private BufferedReader in;
 	private PrintWriter out;
 	private static ExecutorService executorService;
@@ -42,6 +43,7 @@ public class Client implements IClientCli, Runnable {
 		this.userResponseStream = userResponseStream;
 		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
 		try {
+			this.datagramSocket = ClientFactory.createDatagramSocket();
 			this.socket = ClientFactory.createSocket();
 			this.out = ClientFactory.createPrintWriter(socket);
 			this.in = ClientFactory.createBufferedReader(socket);
@@ -88,20 +90,24 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String list() throws IOException {
 		//TODO implement it
-		DatagramSocket datagramSocket = ClientFactory.createDatagramSocket();
 		byte[] buffer = new byte[1024];
 		buffer = "!list".getBytes();
-		DatagramPacket packet = new DatagramPacket(buffer,buffer.length,
-				InetAddress.getByName(config.getString("chatserver.host")),config.getInt("chatserver.udp.port"));
+		InetAddress address = InetAddress.getByName(config.getString("chatserver.host"));
+		int port = config.getInt("chatserver.udp.port");
+		DatagramPacket packet = new DatagramPacket(buffer,buffer.length, address, port);
 		datagramSocket.send(packet);
 
 		buffer = new byte[1024];
 		packet = new DatagramPacket(buffer,buffer.length);
 		datagramSocket.receive(packet);
-		String response = "Request was not handled by server";
-		response = new String(packet.getData());
-		datagramSocket.close();
-		return response;
+		String response = new String(packet.getData());
+		String[] parts = response.split(",");
+		StringBuilder rst = new StringBuilder("Online Users:\n");
+		for(int i = 0; i < parts.length; i++){
+			rst.append("* "+parts[i]+"\n");
+		}
+
+		return rst.toString();
 	}
 
 	@Command

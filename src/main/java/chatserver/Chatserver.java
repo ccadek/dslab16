@@ -47,8 +47,12 @@ public class Chatserver implements IChatserverCli, Runnable {
 		this.userResponseStream = userResponseStream;
 		this.socket = null;
 		this.datagramPacket = null;
-		this.in = new BufferedReader(new InputStreamReader(userRequestStream));
-		this.out = new PrintWriter(userResponseStream, true);
+		if(userRequestStream != null) {
+			this.in = new BufferedReader(new InputStreamReader(userRequestStream));
+		}
+		if(userResponseStream != null){
+			this.out = new PrintWriter(userResponseStream, true);
+		}
 		isRunning = true;
 	}
 
@@ -118,7 +122,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 					e.printStackTrace();
 				}
 			} else if (datagramPacket != null) {
-				byte[] buffer = new byte[1024];
 				request = new String(datagramPacket.getData());
 			}
 
