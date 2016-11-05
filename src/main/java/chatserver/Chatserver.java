@@ -191,7 +191,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		users = new UserMap();
 
 		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
-		executorService = Executors.newCachedThreadPool();
+		executorService = ServerFactory.getExecutorService();
 		TCPListener tcpListener = new TCPListener(chatserver.componentName, new Config("user"),
 				serverSocket, executorService);
 		UDPListener udpListener = new UDPListener(chatserver.componentName,chatserver.config,

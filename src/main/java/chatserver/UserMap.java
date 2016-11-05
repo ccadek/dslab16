@@ -72,6 +72,10 @@ public class UserMap {
 		return name;
 	}
 
+	public synchronized List<String> getAllLoggedInUsernames(){
+		return loggedInUsers.keySet().
+	}
+
 	public synchronized boolean isUserLoggedIn(String username){
 		return loggedInUsers.containsKey(username);
 	}
