@@ -18,13 +18,13 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-	public static ServerSocket serverSocket;
-	public static DatagramSocket datagramSocket;
+	private static ServerSocket serverSocket;
+	private static DatagramSocket datagramSocket;
 	private Socket socket;
 	private DatagramPacket datagramPacket;
 	public Shell shell;
 	private static ExecutorService executorService;
-	public static UserMap users;
+	private static UserMap users;
 	private BufferedReader in;
 	private PrintWriter out;
 	private boolean isRunning;
@@ -52,15 +52,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 		isRunning = true;
 	}
 
-	private boolean checkUser(String username, String password){
-		Set<String> users = config.listKeys();
-		if(users.contains(username) && config.getString(username).equals(password)){
-			return true;
-		}
-		return false;
-	}
-
-
+	/*
+		Methods for access to the Usermap
+	 */
 	public String getUsername(InetSocketAddress remoteSocketAddress) {
 		return users.getLoggedInUsername(remoteSocketAddress);
 	}
@@ -77,25 +71,28 @@ public class Chatserver implements IChatserverCli, Runnable {
 		return users.getAllLoggedInUsersAddresses();
 	}
 
+	public InetSocketAddress getRegisteredUserAddress(String username){
+		return users.getRegisteredUser(username);
+	}
+
+	// only called when socket != null
 	public void answer(String message){
-		if(socket != null) {
-			out.println(message);
-		} else {
-			//TODO implement DatagramSocketanswer
-		}
+		out.println(message);
 	}
 
 	public void answer(DatagramPacket packet) throws IOException{
-		//TODO implement
+		datagramSocket.send(packet);
 	}
 
-	public void closeConnection(){
+	public void stop(){
+		isRunning = false;
+	}
+
+	private void closeConnection(){
 		try{
 			in.close();
 			out.close();
 			socket.close();
-			serverSocket.close();
-			datagramSocket.close();
 		}
 		catch (SocketException e){
 			// just in case socket is closed before it is closed in here
@@ -150,6 +147,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Command
 	@Override
 	public String exit() throws IOException {
+		closeConnection();
 		if(serverSocket != null){
 			serverSocket.close();
 		}
@@ -162,8 +160,23 @@ public class Chatserver implements IChatserverCli, Runnable {
 		return "Server closed.";
 	}
 
+	/*
+		Methods mainly for testing purposes
+	 */
 	public void setSocket(Socket socket) {
 		this.socket = socket;
+	}
+
+	public void setServerSocket(ServerSocket s){
+		serverSocket = s;
+	}
+
+	public void setDatagramSocket(DatagramSocket d){
+		datagramSocket = d;
+	}
+
+	public void setUserMap(UserMap u){
+		users = u;
 	}
 
 	public void setExecutorService(ExecutorService service){

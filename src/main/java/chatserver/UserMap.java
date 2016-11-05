@@ -88,4 +88,8 @@ public class UserMap {
 		loggedInUsers.clear();
 		registeredUsers.clear();
 	}
+
+	public InetSocketAddress getRegisteredUser(String username) {
+		return registeredUsers.get(username);
+	}
 }
