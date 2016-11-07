@@ -18,8 +18,13 @@ public class ClientFactory {
 
     private static Config config = new Config("client");
 
-    public static Socket createSocket() throws IOException{
-        return new Socket(config.getString("chatserver.host"),config.getInt("chatserver.tcp.port"));
+    private static Socket socket = null;
+
+    public static Socket getConfigSocket() throws IOException{
+        if(socket == null){
+            socket = new Socket(config.getString("chatserver.host"),config.getInt("chatserver.tcp.port"));
+        }
+        return socket;
     }
 
     public static BufferedReader createBufferedReader(Socket socket) throws IOException {

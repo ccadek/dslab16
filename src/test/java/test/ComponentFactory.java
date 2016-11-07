@@ -2,6 +2,7 @@ package test;
 
 import chatserver.*;
 import cli.Shell;
+import client.ResponseListener;
 import nameserver.INameserverCli;
 import nameserver.Nameserver;
 import util.Config;
@@ -38,12 +39,12 @@ public class ComponentFactory {
 		 * following lines but you do not have to.
 		 */
 		Config config = new Config("client");
-		Client client = new Client(componentName, new Config("client"), in,
-				out);
+		Client client = new Client(componentName, new Config("client"), in, out);
 		client.getShell().register(client);
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.getShell());
 		executorService.execute(client);
+		executorService.execute(client.getResponseListener());
 		return client;
 	}
 

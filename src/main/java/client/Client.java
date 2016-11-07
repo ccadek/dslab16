@@ -21,9 +21,9 @@ public class Client implements IClientCli, Runnable {
 	private Shell shell;
 	private Socket socket;
 	private DatagramSocket datagramSocket;
-	private BufferedReader in;
 	private PrintWriter out;
 	private static ExecutorService executorService;
+	private static ResponseListener responseListener;
 
 	/**
 	 * @param componentName
@@ -44,13 +44,18 @@ public class Client implements IClientCli, Runnable {
 		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
 		try {
 			this.datagramSocket = ClientFactory.createDatagramSocket();
-			this.socket = ClientFactory.createSocket();
+			this.socket = ClientFactory.getConfigSocket();
 			this.out = ClientFactory.createPrintWriter(socket);
-			this.in = ClientFactory.createBufferedReader(socket);
 
 		} catch(IOException e){
-
+			try {
+				shell.writeLine("socket already used\n");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
 		}
+		responseListener = new ResponseListener(socket,shell);
 		// TODO
 	}
 
@@ -63,27 +68,27 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String login(String username, String password) throws IOException {
 		out.println("!login "+username+" "+password);
-		String response = in.readLine();
+		//String response = in.readLine();
 
-		return response;
+		return null;
 	}
 
 	@Command
 	@Override
 	public String logout() throws IOException {
 		out.println("!logout");
-		String response = in.readLine();
+		//String response = in.readLine();
 
-		return response;
+		return null;
 	}
 
 	@Command
 	@Override
 	public String send(String message) throws IOException {
 		out.println("!send " + message);
-		String response = in.readLine();
+		//String response = in.readLine();
 
-		return response;
+		return null;
 	}
 
 	@Command
@@ -114,9 +119,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String msg(String username, String message) throws IOException {
 		out.println("!msg "+username+" "+message);
-		String response = in.readLine();
+		//String response = in.readLine();
 
-		return response;
+		return null;
 
 	}
 
@@ -124,9 +129,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String lookup(String username) throws IOException {
 		out.println("!lookup "+username);
-		String response = in.readLine();
+		//String response = in.readLine();
 
-		return response;
+		return null;
 
 	}
 
@@ -148,19 +153,18 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String exit() throws IOException {
-		//logout();
-		closeConnection(socket,in,out);
+		logout();
+		out.println("!exit");
+		responseListener.stop();
+		closeConnection(socket,out);
 		shell.close();
 		executorService.shutdown();
 		return null;
 	}
 
-	private void closeConnection(Socket s, BufferedReader b, PrintWriter p) throws IOException {
+	private void closeConnection(Socket s, PrintWriter p) throws IOException {
 		if(s != null){
 			s.close();
-		}
-		if(b != null){
-			b.close();
 		}
 		if(p != null){
 			p.close();
@@ -169,6 +173,14 @@ public class Client implements IClientCli, Runnable {
 
 	public Shell getShell(){
 		return shell;
+	}
+
+	public Socket getSocket(){
+		return socket;
+	}
+
+	public ResponseListener getResponseListener(){
+		return responseListener;
 	}
 
 	/**
@@ -182,6 +194,7 @@ public class Client implements IClientCli, Runnable {
 		executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.shell);
 		executorService.execute(client);
+		executorService.execute(responseListener);
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to

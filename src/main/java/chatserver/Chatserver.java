@@ -112,28 +112,33 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Override
 	public void run() {
 		String request = "";
-		while(!executorService.isShutdown()) {
-			if (socket != null) {
-				request = "";
-				try {
+		try {
+			while (isRunning) {
+				if (socket != null) {
 					request = in.readLine().trim();
-				} catch (IOException e) {
-					e.printStackTrace();
+				} else if (datagramPacket != null) {
+					request = new String(datagramPacket.getData());
 				}
-			} else if (datagramPacket != null) {
-				request = new String(datagramPacket.getData());
-			}
 
-			// delegate query to requestexecutor
-			try {
-				RequestParser parser = new RequestParser(request, socket, datagramPacket);
-				parser.getRequestExecutor().execute(this);
-			} catch (IllegalArgumentException e){
-				answer(Answers.INVALID_REQUEST);
+				// delegate query to requestexecutor
+				try {
+					RequestParser parser = new RequestParser(request, socket, datagramPacket);
+					parser.getRequestExecutor().execute(this);
+				} catch (IllegalArgumentException e) {
+					answer(Answers.INVALID_REQUEST);
+				}
 			}
 		}
-		// close Datagram-/ServerSocket, Socket and its reader and printer
-		closeConnection();
+		catch (NullPointerException e){
+			// when Client does not properly close the connection
+		}
+		catch (IOException e){
+
+		}
+		finally {
+			// close Datagram-/ServerSocket, Socket and its reader and printer
+			closeConnection();
+		}
 	}
 
 	@Command
@@ -153,7 +158,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Command
 	@Override
 	public String exit() throws IOException {
-		closeConnection();
+		executorService.shutdown();
 		if(serverSocket != null){
 			serverSocket.close();
 		}
@@ -162,7 +167,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		}
 		users.clear();
 		shell.close();
-		executorService.shutdown();
+		closeConnection();
 		return "Server closed.";
 	}
 

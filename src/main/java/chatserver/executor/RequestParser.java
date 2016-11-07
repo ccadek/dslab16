@@ -46,6 +46,9 @@ public class RequestParser{
 		else if(command.equals("!list")){
 			return new ListExecutor(datagramPacket);
 		}
+		else if(command.equals("!exit")){
+			return new ExitExecutor();
+		}
 		else if (command.equals("!register")){
 			return new RegisterExecutor(arguments);
 		}
