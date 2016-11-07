@@ -2,6 +2,7 @@ package chatserver.executor;
 
 import chatserver.Chatserver;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.*;
 import java.util.List;
@@ -31,19 +32,13 @@ public class ListExecutor implements IRequestExecutor {
 		int port = packet.getPort();
 		byte[] answer = response.getBytes();
 		packet = new DatagramPacket(answer, answer.length, address, port);
-		DatagramSocket socket = null;
-		try {
-			socket = new DatagramSocket();
+
+		try (DatagramSocket socket = new DatagramSocket()){
 			socket.send(packet);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if(socket != null) {
-				socket.close();
-			}
 		}
-
 	}
 }
