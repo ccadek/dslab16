@@ -1,4 +1,4 @@
-package chatserver.util;
+package chatserver.executor;
 
 import chatserver.Chatserver;
 import chatserver.ServerFactory;

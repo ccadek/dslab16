@@ -1,9 +1,8 @@
-package chatserver.util;
+package chatserver.executor;
 
 import chatserver.Chatserver;
 import util.Config;
 
-import java.net.Socket;
 import java.util.List;
 import java.util.Set;
 

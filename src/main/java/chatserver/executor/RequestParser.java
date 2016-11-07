@@ -1,7 +1,6 @@
-package chatserver.util;
+package chatserver.executor;
 
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;

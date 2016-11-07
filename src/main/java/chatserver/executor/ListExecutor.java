@@ -1,13 +1,10 @@
-package chatserver.util;
+package chatserver.executor;
 
 import chatserver.Chatserver;
-import chatserver.ServerFactory;
-import chatserver.UDPSender;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 public class ListExecutor implements IRequestExecutor {
 
