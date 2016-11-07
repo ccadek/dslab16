@@ -1,10 +1,7 @@
 package client;
 
 import java.io.*;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -138,7 +135,25 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String register(String privateAddress) throws IOException {
-		//TODO create Serversocket, run thread...
+		String[] parts = privateAddress.split(":");
+		String error = "Invalid address";
+		if(parts.length != 2){
+			return error;
+		}
+
+		try {
+			InetAddress address = InetAddress.getByName(parts[0]);
+			int port = Integer.parseInt(parts[1]);
+		} catch (UnknownHostException e){
+			return error;
+		} catch (NumberFormatException e){
+			return error;
+		}
+		out.println("!register "+privateAddress);
+
+		/*
+		Create Serversocket, listen for incoming msg's
+		 */
 
 		return null;
 	}
