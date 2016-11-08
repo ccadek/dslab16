@@ -7,7 +7,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 public class TCPListener implements Runnable{
@@ -45,9 +47,11 @@ public class TCPListener implements Runnable{
             e.printStackTrace();
             // will be thrown, don't worry
         } finally {
-            for(Chatserver c : serverList){
-                c.stop();
-                serverList.remove(c);
+            Iterator listIterator = serverList.iterator();
+            while(listIterator.hasNext()){
+                Chatserver elem = (Chatserver) listIterator.next();
+                elem.stop();
+                listIterator.remove();
             }
             if(serverSocket != null){
                 try {
