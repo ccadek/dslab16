@@ -29,7 +29,7 @@ public class RequestParser{
 
 	public IRequestExecutor getRequestExecutor() {
 		if(command.equals("!login")){
-			return new LoginExecutor(arguments);
+			return new LoginExecutor(arguments,socket);
 		}
 		else if(command.equals("!logout")){
 			return new LogoutExecutor(socket);

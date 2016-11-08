@@ -12,4 +12,6 @@ public class Answers {
 	public static String INVALID_LOGIN = "Wrong username and/or password.";
 
 	public static String SUCCESS_LOGOUT = "Successfully logged out.";
+
+	public static String SUCCESS_REGISTER = "Successfully registered address for";
 }

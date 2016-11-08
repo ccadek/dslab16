@@ -23,7 +23,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private DatagramPacket datagramPacket;
 	public Shell shell;
 	private static ExecutorService executorService;
-	private static UserMap users;
+	private static UserMap userMap;
 	private BufferedReader in;
 	private PrintWriter out;
 	private boolean isRunning;
@@ -58,28 +58,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 	/*
 		Methods for access to the Usermap
 	 */
-	public String getUsername(InetSocketAddress remoteSocketAddress) {
-		return users.getLoggedInUsername(remoteSocketAddress);
-	}
-
-	public void loginUser(String username){
-		users.loginUser(username, (InetSocketAddress) socket.getRemoteSocketAddress());
-	}
-
-	public boolean logoutUser(InetSocketAddress address){
-		return users.logoutUser(address);
-	}
-
-	public List<InetSocketAddress> getAllLoggedInUsersAddresses(){
-		return users.getAllLoggedInUsersAddresses();
-	}
-
-	public List<String> getAllLoggedInUserNames(){
-		return users.getAllLoggedInUsernames();
-	}
-
-	public InetSocketAddress getRegisteredUserAddress(String username){
-		return users.getRegisteredUser(username);
+	public UserMap getUserMap(){
+		return userMap;
 	}
 
 	// only called when socket != null
@@ -144,7 +124,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Command
 	@Override
 	public String users() throws IOException {
-		List<String> usernames = users.getAllLoggedInUsersnames();
+		List<String> usernames = userMap.getAllLoggedInUsersnames();
 		if(usernames.size() == 0){
 			return "No users logged in";
 		}
@@ -165,7 +145,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		if(datagramSocket != null){
 			datagramSocket.close();
 		}
-		users.clear();
+		userMap.clear();
 		shell.close();
 		closeConnection();
 		return "Server closed.";
@@ -187,7 +167,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 	}
 
 	public void setUserMap(UserMap u){
-		users = u;
+		userMap = u;
 	}
 
 	public void setExecutorService(ExecutorService service){
@@ -212,7 +192,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		users = new UserMap();
+		userMap = new UserMap();
 
 		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = ServerFactory.getExecutorService();

@@ -21,12 +21,12 @@ public class SendExecutor implements IRequestExecutor {
 
 	@Override
 	public void execute(Chatserver chatserver) {
-		String username = chatserver.getUsername((InetSocketAddress) socket.getRemoteSocketAddress());
+		String username = chatserver.getUserMap().getLoggedInUsername((InetSocketAddress) socket.getRemoteSocketAddress());
 		String message = "";
 		for(String part : arguments){
 			message += part;
 		}
-		for(InetSocketAddress adress : chatserver.getAllLoggedInUsersAddresses()){
+		for(InetSocketAddress adress : chatserver.getUserMap().getAllLoggedInUsersAddresses()){
 			if(adress == socket.getRemoteSocketAddress()){
 				continue;
 			}

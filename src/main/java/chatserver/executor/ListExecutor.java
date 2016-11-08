@@ -19,7 +19,7 @@ public class ListExecutor implements IRequestExecutor {
 	@Override
 	public void execute(Chatserver chatserver) {
 
-		List<String> userList = chatserver.getAllLoggedInUserNames();
+		List<String> userList = chatserver.getUserMap().getAllLoggedInUsersnames();
 		String response = "";
 
 		for(int i = 0; i < userList.size(); i++){

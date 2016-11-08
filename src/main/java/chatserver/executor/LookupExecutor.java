@@ -16,7 +16,7 @@ public class LookupExecutor implements IRequestExecutor{
 
 	@Override
 	public void execute(Chatserver chatserver) {
-		InetSocketAddress userAddress = chatserver.getRegisteredUserAddress(arguments.get(0));
+		InetSocketAddress userAddress = chatserver.getUserMap().getRegisteredUser(arguments.get(0));
 		String response = "Wrong username or user not registered.";
 		if(userAddress != null){
 			response = userAddress.toString();

@@ -42,7 +42,7 @@ public class UserMap {
 		return true;
 	}
 
-	public synchronized List<InetSocketAddress> getAllLoggedInUsersAddresses(){
+	public List<InetSocketAddress> getAllLoggedInUsersAddresses(){
 		List<InetSocketAddress> list = new ArrayList<>();
 		for(InetSocketAddress address : loggedInUsers.values()){
 			list.add(address);
@@ -50,7 +50,7 @@ public class UserMap {
 		return list;
 	}
 
-	public synchronized List<String> getAllLoggedInUsersnames(){
+	public List<String> getAllLoggedInUsersnames(){
 		List<String> list = new ArrayList<>();
 		for(String name : loggedInUsers.keySet()){
 			list.add(name);
@@ -58,7 +58,7 @@ public class UserMap {
 		return list;
 	}
 
-	public synchronized String getLoggedInUsername(InetSocketAddress address){
+	public String getLoggedInUsername(InetSocketAddress address){
 		String name = "";
 		for(String user : loggedInUsers.keySet()){
 			if(loggedInUsers.get(user).equals(address)){
@@ -69,18 +69,18 @@ public class UserMap {
 		return name;
 	}
 
-	public synchronized List<String> getAllLoggedInUsernames(){
+	public List<String> getAllLoggedInUsernames(){
 		Set<String> set = loggedInUsers.keySet();
 		List<String> list = new ArrayList<>();
 		list.addAll(set);
 		return list;
 	}
 
-	public synchronized boolean isUserLoggedIn(String username){
+	public boolean isUserLoggedIn(String username){
 		return loggedInUsers.containsKey(username);
 	}
 
-	public synchronized boolean isUserLoggedIn(InetSocketAddress address){
+	public boolean isUserLoggedIn(InetSocketAddress address){
 		return loggedInUsers.values().contains(address);
 	}
 

@@ -16,7 +16,7 @@ public class LogoutExecutor implements IRequestExecutor {
 
 	@Override
 	public void execute(Chatserver chatserver) {
-		boolean logout = chatserver.logoutUser((InetSocketAddress) socket.getRemoteSocketAddress());
+		boolean logout = chatserver.getUserMap().logoutUser((InetSocketAddress) socket.getRemoteSocketAddress());
 		if(logout){
 			chatserver.answer(Answers.SUCCESS_LOGOUT);
 		} else{
