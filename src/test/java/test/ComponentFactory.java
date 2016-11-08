@@ -40,7 +40,6 @@ public class ComponentFactory {
 		 */
 		Config config = new Config("client");
 		Client client = new Client(componentName, new Config("client"), in, out);
-		client.getShell().register(client);
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.getShell());
 		executorService.execute(client);

@@ -19,8 +19,9 @@ public class Client implements IClientCli, Runnable {
 	private Socket socket;
 	private DatagramSocket datagramSocket;
 	private PrintWriter out;
+	ServerSocket privateMsgServerSocket;
 	private static ExecutorService executorService;
-	private static ResponseListener responseListener;
+	private ResponseListener responseListener;
 
 	/**
 	 * @param componentName
@@ -39,6 +40,7 @@ public class Client implements IClientCli, Runnable {
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
 		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
+		this.shell.register(this);
 		try {
 			this.datagramSocket = ClientFactory.createDatagramSocket();
 			this.socket = ClientFactory.getConfigSocket();
@@ -140,10 +142,10 @@ public class Client implements IClientCli, Runnable {
 		if(parts.length != 2){
 			return error;
 		}
-
+		int port = 0;
 		try {
 			InetAddress address = InetAddress.getByName(parts[0]);
-			int port = Integer.parseInt(parts[1]);
+			port = Integer.parseInt(parts[1]);
 		} catch (UnknownHostException e){
 			return error;
 		} catch (NumberFormatException e){
@@ -151,9 +153,9 @@ public class Client implements IClientCli, Runnable {
 		}
 		out.println("!register "+privateAddress);
 
-		/*
-		Create Serversocket, listen for incoming msg's
-		 */
+		privateMsgServerSocket = new ServerSocket(port);
+		PrivateMessageListener privateMessageListener = new PrivateMessageListener(privateMsgServerSocket,shell);
+		executorService.execute(privateMessageListener);
 
 		return null;
 	}
@@ -171,18 +173,21 @@ public class Client implements IClientCli, Runnable {
 		logout();
 		out.println("!exit");
 		responseListener.stop();
-		closeConnection(socket,out);
+		if(privateMsgServerSocket != null) {
+			privateMsgServerSocket.close();
+		}
+		closeConnection();
 		shell.close();
 		executorService.shutdown();
 		return null;
 	}
 
-	private void closeConnection(Socket s, PrintWriter p) throws IOException {
-		if(s != null){
-			s.close();
+	private void closeConnection() throws IOException {
+		if(socket != null){
+			socket.close();
 		}
-		if(p != null){
-			p.close();
+		if(out != null){
+			out.close();
 		}
 	}
 
@@ -205,11 +210,10 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
-		client.shell.register(client);
 		executorService = Executors.newCachedThreadPool();
-		executorService.execute(client.shell);
+		executorService.execute(client.getShell());
 		executorService.execute(client);
-		executorService.execute(responseListener);
+		executorService.execute(client.getResponseListener());
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
