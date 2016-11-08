@@ -1,6 +1,7 @@
 package chatserver.executor;
 
 import chatserver.Chatserver;
+import chatserver.UDPSender;
 
 import javax.xml.crypto.Data;
 import java.io.IOException;
@@ -32,13 +33,6 @@ public class ListExecutor implements IRequestExecutor {
 		int port = packet.getPort();
 		byte[] answer = response.getBytes();
 		packet = new DatagramPacket(answer, answer.length, address, port);
-
-		try (DatagramSocket socket = new DatagramSocket()){
-			socket.send(packet);
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		chatserver.answer(packet);
 	}
 }

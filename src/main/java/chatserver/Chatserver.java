@@ -53,6 +53,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 			this.out = new PrintWriter(userResponseStream, true);
 		}
 		isRunning = true;
+		userMap = new UserMap();
 	}
 
 	/*
@@ -67,8 +68,16 @@ public class Chatserver implements IChatserverCli, Runnable {
 		out.println(message);
 	}
 
-	public void answer(DatagramPacket packet) throws IOException{
-		datagramSocket.send(packet);
+	public void answer(DatagramPacket packet){
+		try {
+			DatagramSocket s = new DatagramSocket();
+			s.send(packet);
+			s.close();
+		} catch (SocketException e){
+
+		} catch (IOException e){
+
+		}
 	}
 
 	public void stop(){
@@ -166,10 +175,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 		datagramSocket = d;
 	}
 
-	public void setUserMap(UserMap u){
-		userMap = u;
-	}
-
 	public void setExecutorService(ExecutorService service){
 		executorService = service;
 	}
@@ -192,7 +197,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		userMap = new UserMap();
 
 		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = ServerFactory.getExecutorService();

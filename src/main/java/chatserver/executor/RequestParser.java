@@ -50,7 +50,7 @@ public class RequestParser{
 			return new ExitExecutor();
 		}
 		else if (command.equals("!register")){
-			return new RegisterExecutor(arguments);
+			return new RegisterExecutor(arguments, socket);
 		}
 		else {
 			throw new IllegalArgumentException();

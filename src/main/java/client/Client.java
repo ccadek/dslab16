@@ -17,9 +17,8 @@ public class Client implements IClientCli, Runnable {
 	private PrintStream userResponseStream;
 	private Shell shell;
 	private Socket socket;
-	private DatagramSocket datagramSocket;
 	private PrintWriter out;
-	ServerSocket privateMsgServerSocket;
+	private ServerSocket privateMsgServerSocket;
 	private static ExecutorService executorService;
 	private ResponseListener responseListener;
 
@@ -42,7 +41,6 @@ public class Client implements IClientCli, Runnable {
 		this.shell = new Shell(componentName,userRequestStream,userResponseStream);
 		this.shell.register(this);
 		try {
-			this.datagramSocket = ClientFactory.createDatagramSocket();
 			this.socket = ClientFactory.getConfigSocket();
 			this.out = ClientFactory.createPrintWriter(socket);
 
@@ -99,6 +97,7 @@ public class Client implements IClientCli, Runnable {
 		InetAddress address = InetAddress.getByName(config.getString("chatserver.host"));
 		int port = config.getInt("chatserver.udp.port");
 		DatagramPacket packet = new DatagramPacket(buffer,buffer.length, address, port);
+		DatagramSocket datagramSocket = ClientFactory.createDatagramSocket();
 		datagramSocket.send(packet);
 
 		buffer = new byte[1024];
@@ -110,7 +109,7 @@ public class Client implements IClientCli, Runnable {
 		for(int i = 0; i < parts.length; i++){
 			rst.append("* "+parts[i]+"\n");
 		}
-
+		datagramSocket.close();
 		return rst.toString();
 	}
 

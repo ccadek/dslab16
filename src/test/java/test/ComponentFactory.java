@@ -77,7 +77,7 @@ public class ComponentFactory {
 		}
 		chatserver.setServerSocket(serverSocket);
 		chatserver.setDatagramSocket(datagramSocket);
-		chatserver.setUserMap(new UserMap());
+		//chatserver.setUserMap(new UserMap());
 
 		chatserver.shell = new Shell("chatserver",System.in,System.out);
 		ExecutorService executorService = Executors.newCachedThreadPool();

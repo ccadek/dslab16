@@ -18,6 +18,7 @@ public class UDPSender implements Runnable{
 		try {
 			DatagramSocket s = new DatagramSocket();
 			s.send(packet);
+			s.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
