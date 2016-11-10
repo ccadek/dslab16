@@ -119,7 +119,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 					RequestParser parser = new RequestParser(request, this);
 					parser.getRequestExecutor().execute(this);
 				} catch (IllegalArgumentException e) {
-					answer(Answers.INVALID_REQUEST);
+					answer(e.getMessage());
 				}
 			}
 		}

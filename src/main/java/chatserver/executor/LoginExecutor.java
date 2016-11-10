@@ -29,8 +29,12 @@ public class LoginExecutor implements IRequestExecutor {
 		String usernameFile = arguments.get(0)+".password";
 		String password = arguments.get(1);
 		if(users.contains(usernameFile) && config.getString(usernameFile).equals(password)){
-			chatserver.getUserMap().loginUser(username, (InetSocketAddress) socket.getRemoteSocketAddress());
-			chatserver.answer(Answers.SUCCESS_LOGIN);
+			if(!chatserver.getUserMap().isUserLoggedIn(username)) {
+				chatserver.getUserMap().loginUser(username, (InetSocketAddress) socket.getRemoteSocketAddress());
+				chatserver.answer(Answers.SUCCESS_LOGIN);
+			} else {
+				chatserver.answer(Answers.ALREADY_LOGGED_IN);
+			}
 		} else {
 			chatserver.answer(Answers.INVALID_LOGIN);
 		}
