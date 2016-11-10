@@ -76,16 +76,16 @@ public class ComponentFactory {
 		chatserver.setServerSocket(serverSocket);
 		chatserver.setDatagramSocket(datagramSocket);
 
-		chatserver.shell = new Shell(componentName,System.in,System.out);
+		Chatserver.shell = new Shell(componentName,System.in,System.out);
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		chatserver.setExecutorService(executorService);
 		TCPListener tcpListener = new TCPListener(componentName, new Config("user"),
 				serverSocket, executorService);
 		UDPListener udpListener = new UDPListener(componentName,config,
 				datagramSocket,executorService);
-		chatserver.shell.register(chatserver);
+		Chatserver.shell.register(chatserver);
 
-		executorService.execute(chatserver.shell);
+		executorService.execute(Chatserver.shell);
 		executorService.execute(tcpListener);
 		executorService.execute(udpListener);
 		return chatserver;

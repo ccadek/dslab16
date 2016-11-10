@@ -63,6 +63,7 @@ public class Client implements IClientCli, Runnable {
 		try(BufferedReader in = ClientFactory.createBufferedReader(socket)){
 			while (isRunning){
 				String response = in.readLine().trim();
+				System.out.println(response);
 				if(response.startsWith("!pub")){
 					lastMessage = response.substring(5,response.length());
 					shell.writeLine(lastMessage);

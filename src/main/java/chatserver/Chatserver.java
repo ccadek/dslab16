@@ -5,7 +5,6 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
-import chatserver.executor.Answers;
 import chatserver.executor.RequestParser;
 import cli.Command;
 import cli.Shell;
@@ -221,15 +220,15 @@ public class Chatserver implements IChatserverCli, Runnable {
 			e.printStackTrace();
 		}
 
-		chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
+		Chatserver.shell = new Shell(chatserver.componentName,chatserver.userRequestStream,chatserver.userResponseStream);
 		executorService = ServerFactory.getExecutorService();
 		TCPListener tcpListener = new TCPListener(chatserver.componentName, new Config("user"),
 				serverSocket, executorService);
 		UDPListener udpListener = new UDPListener(chatserver.componentName,chatserver.config,
 				datagramSocket,executorService);
-		chatserver.shell.register(chatserver);
+		Chatserver.shell.register(chatserver);
 
-		executorService.execute(chatserver.shell);
+		executorService.execute(Chatserver.shell);
 		executorService.execute(tcpListener);
 		executorService.execute(udpListener);
 	}
