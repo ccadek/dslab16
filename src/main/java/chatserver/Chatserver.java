@@ -116,7 +116,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 				// delegate query to requestexecutor
 				try {
-					RequestParser parser = new RequestParser(request, socket, datagramPacket);
+					RequestParser parser = new RequestParser(request, this);
 					parser.getRequestExecutor().execute(this);
 				} catch (IllegalArgumentException e) {
 					answer(Answers.INVALID_REQUEST);
@@ -171,10 +171,14 @@ public class Chatserver implements IChatserverCli, Runnable {
 	}
 
 	/*
-		Methods mainly for testing purposes
+		Getter and Setter for testing purposes, but also utilised for cleaner Constructors and parameter lists
 	 */
 	public void setSocket(Socket socket) {
 		this.socket = socket;
+	}
+
+	public Socket getSocket(){
+		return socket;
 	}
 
 	public void setServerSocket(ServerSocket s){
@@ -183,6 +187,10 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 	public void setDatagramSocket(DatagramSocket d){
 		datagramSocket = d;
+	}
+
+	public DatagramPacket getDatagramPacket(){
+		return datagramPacket;
 	}
 
 	public void setExecutorService(ExecutorService service){
