@@ -54,7 +54,7 @@ public class Client implements IClientCli, Runnable {
 			e.printStackTrace();
 		}
 		isRunning = true;
-		lastMessage = "No public message has ben received yet.";
+		lastMessage = "No public message has been received yet.";
 	}
 
 	@Override
