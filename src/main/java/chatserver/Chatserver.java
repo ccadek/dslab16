@@ -166,6 +166,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 			datagramSocket.close();
 		}
 		closeConnection();
+		userMap.clear();
 		shell.close();
 		return "Server closed.";
 	}
