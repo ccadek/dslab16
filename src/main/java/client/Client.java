@@ -20,7 +20,6 @@ public class Client implements IClientCli, Runnable {
 	private PrintWriter out;
 	private ServerSocket privateMsgServerSocket;
 	private static ExecutorService executorService;
-	private ResponseListener responseListener;
 	private boolean isRunning;
 
 	/**
@@ -53,7 +52,7 @@ public class Client implements IClientCli, Runnable {
 			}
 			e.printStackTrace();
 		}
-		responseListener = new ResponseListener(socket,shell);
+		//responseListener = new ResponseListener(socket,shell);
 		isRunning = true;
 		// TODO
 	}
@@ -213,10 +212,6 @@ public class Client implements IClientCli, Runnable {
 		return socket;
 	}
 
-	public ResponseListener getResponseListener(){
-		return responseListener;
-	}
-
 	/**
 	 * @param args
 	 *            the first argument is the name of the {@link Client} component
@@ -227,7 +222,6 @@ public class Client implements IClientCli, Runnable {
 		executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.getShell());
 		executorService.execute(client);
-		//executorService.execute(client.getResponseListener());
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
