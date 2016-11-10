@@ -194,6 +194,10 @@ public class Chatserver implements IChatserverCli, Runnable {
 		return datagramPacket;
 	}
 
+	public List<Chatserver> getInstances(){
+		return instances;
+	}
+
 	public void setExecutorService(ExecutorService service){
 		executorService = service;
 	}

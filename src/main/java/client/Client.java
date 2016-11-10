@@ -21,6 +21,7 @@ public class Client implements IClientCli, Runnable {
 	private ServerSocket privateMsgServerSocket;
 	private static ExecutorService executorService;
 	private boolean isRunning;
+	private String lastMessage;
 
 	/**
 	 * @param componentName
@@ -53,6 +54,7 @@ public class Client implements IClientCli, Runnable {
 			e.printStackTrace();
 		}
 		isRunning = true;
+		lastMessage = "No public message has ben received yet.";
 	}
 
 	@Override
@@ -60,8 +62,14 @@ public class Client implements IClientCli, Runnable {
 		// TODO
 		try(BufferedReader in = ClientFactory.createBufferedReader(socket)){
 			while (isRunning){
-				String response = in.readLine();
-				shell.writeLine(response);
+				String response = in.readLine().trim();
+				if(response.startsWith("!pub")){
+					lastMessage = response.substring(5,response.length());
+					shell.writeLine(lastMessage);
+				}
+				else {
+					shell.writeLine(response);
+				}
 			}
 		}catch(SocketException e){
 
@@ -159,7 +167,7 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String lastMsg() throws IOException {
 		//TODO implement it
-		return "!lastMsg";
+		return lastMessage;
 	}
 
 	@Command

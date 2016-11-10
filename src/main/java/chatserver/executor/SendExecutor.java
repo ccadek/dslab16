@@ -24,21 +24,17 @@ public class SendExecutor implements IRequestExecutor {
 		String username = chatserver.getUserMap().getLoggedInUsername((InetSocketAddress) socket.getRemoteSocketAddress());
 		String message = "";
 		for(String part : arguments){
-			message += part;
+			message += part+" ";
 		}
-		for(InetSocketAddress adress : chatserver.getUserMap().getAllLoggedInUsersAddresses()){
-			if(adress == socket.getRemoteSocketAddress()){
+		for(Chatserver c: chatserver.getInstances()){
+			//for(InetSocketAddress address : chatserver.getUserMap().getAllLoggedInUsersAddresses()){
+			Socket tmp = c.getSocket();
+			if(tmp.getRemoteSocketAddress() == socket.getRemoteSocketAddress()){
 				continue;
 			}
-			try {
-				Socket s = ServerFactory.createSocket(adress.getAddress(),adress.getPort());
-				PrintWriter messageOut = ServerFactory.createPrintWriter(socket);
-				messageOut.println(username+": "+message);
-				messageOut.close();
-				s.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+
+			c.answer("!pub "+username+": "+message);
+
 		}
 	}
 }
