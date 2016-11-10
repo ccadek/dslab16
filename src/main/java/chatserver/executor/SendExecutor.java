@@ -1,10 +1,7 @@
 package chatserver.executor;
 
 import chatserver.Chatserver;
-import chatserver.ServerFactory;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
@@ -27,7 +24,6 @@ public class SendExecutor implements IRequestExecutor {
 			message += part+" ";
 		}
 		for(Chatserver c: chatserver.getInstances()){
-			//for(InetSocketAddress address : chatserver.getUserMap().getAllLoggedInUsersAddresses()){
 			Socket tmp = c.getSocket();
 			if(tmp.getRemoteSocketAddress() == socket.getRemoteSocketAddress()){
 				continue;
