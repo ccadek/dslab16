@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import chatserver.executor.Answers;
 import chatserver.executor.RequestParser;
@@ -59,9 +57,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 		userMap = new UserMap();
 	}
 
-	/*
-		Methods for access to the Usermap
-	 */
 	public UserMap getUserMap(){
 		return userMap;
 	}

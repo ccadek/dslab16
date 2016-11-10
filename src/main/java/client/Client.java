@@ -52,9 +52,7 @@ public class Client implements IClientCli, Runnable {
 			}
 			e.printStackTrace();
 		}
-		//responseListener = new ResponseListener(socket,shell);
 		isRunning = true;
-		// TODO
 	}
 
 	@Override
@@ -75,8 +73,6 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String login(String username, String password) throws IOException {
 		out.println("!login "+username+" "+password);
-		//String response = in.readLine();
-
 		return null;
 	}
 
@@ -84,8 +80,6 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String logout() throws IOException {
 		out.println("!logout");
-		//String response = in.readLine();
-
 		return null;
 	}
 
@@ -93,17 +87,13 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String send(String message) throws IOException {
 		out.println("!send " + message);
-		//String response = in.readLine();
-
 		return null;
 	}
 
 	@Command
 	@Override
 	public String list() throws IOException {
-		//TODO implement it
-		byte[] buffer = new byte[1024];
-		buffer = "!list".getBytes();
+		byte[] buffer = "!list".getBytes();
 		InetAddress address = InetAddress.getByName(config.getString("chatserver.host"));
 		int port = config.getInt("chatserver.udp.port");
 		DatagramPacket packet = new DatagramPacket(buffer,buffer.length, address, port);
@@ -127,8 +117,6 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String msg(String username, String message) throws IOException {
 		out.println("!msg "+username+" "+message);
-		//String response = in.readLine();
-
 		return null;
 
 	}
@@ -137,8 +125,6 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String lookup(String username) throws IOException {
 		out.println("!lookup "+username);
-		//String response = in.readLine();
-
 		return null;
 
 	}

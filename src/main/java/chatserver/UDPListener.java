@@ -39,7 +39,7 @@ public class UDPListener implements Runnable{
                 executorService.execute(chatserver);
             }
         } catch (SocketException e){
-            // thrown if executorService closes Thread
+            // thrown if socket is closed in another thread
         }
         catch (IOException e){
             e.printStackTrace();
