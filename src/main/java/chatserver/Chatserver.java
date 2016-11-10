@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import chatserver.executor.Answers;
 import chatserver.executor.RequestParser;
@@ -22,12 +23,13 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private static DatagramSocket datagramSocket;
 	private Socket socket;
 	private DatagramPacket datagramPacket;
-	public Shell shell;
+	public static Shell shell;
 	private static ExecutorService executorService;
 	private static UserMap userMap;
 	private BufferedReader in;
 	private PrintWriter out;
 	private boolean isRunning;
+	private static List<Chatserver> instances = new ArrayList<>();
 
 	/**
 	 * @param componentName
@@ -74,8 +76,6 @@ public class Chatserver implements IChatserverCli, Runnable {
 			DatagramSocket s = new DatagramSocket();
 			s.send(packet);
 			s.close();
-		} catch (SocketException e){
-
 		} catch (IOException e){
 
 		}
@@ -93,11 +93,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 			if(out != null) {
 				out.close();
 			}
-			System.out.println("nach in");
 			if(socket != null) {
 				socket.close();
 			}
-			System.out.println("nach socket");
 		}
 		catch (SocketException e){
 			// just in case socket is closed before it is closed in here
@@ -110,6 +108,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Override
 	public void run() {
 		String request = "";
+		synchronized (instances){
+			instances.add(this);
+		}
 		try {
 			while (isRunning) {
 				if (socket != null) {
@@ -134,6 +135,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 		catch (IOException e){
 
 		}
+		synchronized (instances){
+			instances.remove(this);
+		}
 
 	}
 
@@ -154,17 +158,20 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Command
 	@Override
 	public String exit() throws IOException {
-		executorService.shutdownNow();
-		//closeConnection();
+		// Simply close the connection for each server instance. They will remove themselves from the Instance-list
+		for(Chatserver c : instances){
+			c.stop();
+			c.closeConnection();
+		}
+		executorService.shutdown();
 		if(serverSocket != null){
 			serverSocket.close();
 		}
 		if(datagramSocket != null){
 			datagramSocket.close();
 		}
-		userMap.clear();
+		closeConnection();
 		shell.close();
-
 		return "Server closed.";
 	}
 
