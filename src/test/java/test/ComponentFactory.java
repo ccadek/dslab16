@@ -38,7 +38,7 @@ public class ComponentFactory {
 		 * following lines but you do not have to.
 		 */
 		Config config = new Config("client");
-		Client client = new Client(componentName, new Config("client"), in, out);
+		Client client = new Client(componentName, config, in, out);
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.getShell());
 		executorService.execute(client);
@@ -76,12 +76,12 @@ public class ComponentFactory {
 		chatserver.setServerSocket(serverSocket);
 		chatserver.setDatagramSocket(datagramSocket);
 
-		chatserver.shell = new Shell("chatserver",System.in,System.out);
+		chatserver.shell = new Shell(componentName,System.in,System.out);
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		chatserver.setExecutorService(executorService);
-		TCPListener tcpListener = new TCPListener("chatserver", new Config("user"),
+		TCPListener tcpListener = new TCPListener(componentName, new Config("user"),
 				serverSocket, executorService);
-		UDPListener udpListener = new UDPListener("chatserver",config,
+		UDPListener udpListener = new UDPListener(componentName,config,
 				datagramSocket,executorService);
 		chatserver.shell.register(chatserver);
 
