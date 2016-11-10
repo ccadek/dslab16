@@ -42,7 +42,6 @@ public class ComponentFactory {
 		ExecutorService executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.getShell());
 		executorService.execute(client);
-		//executorService.execute(client.getResponseListener());
 		return client;
 	}
 
@@ -76,7 +75,6 @@ public class ComponentFactory {
 		}
 		chatserver.setServerSocket(serverSocket);
 		chatserver.setDatagramSocket(datagramSocket);
-		//chatserver.setUserMap(new UserMap());
 
 		chatserver.shell = new Shell("chatserver",System.in,System.out);
 		ExecutorService executorService = Executors.newCachedThreadPool();
