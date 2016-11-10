@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import chatserver.executor.Answers;
 import chatserver.executor.RequestParser;
@@ -84,11 +85,19 @@ public class Chatserver implements IChatserverCli, Runnable {
 		isRunning = false;
 	}
 
-	private void closeConnection(){
+	public void closeConnection(){
 		try{
-			in.close();
-			out.close();
-			socket.close();
+			if(in != null) {
+				in.close();
+			}
+			if(out != null) {
+				out.close();
+			}
+			System.out.println("nach in");
+			if(socket != null) {
+				socket.close();
+			}
+			System.out.println("nach socket");
 		}
 		catch (SocketException e){
 			// just in case socket is closed before it is closed in here
@@ -120,14 +129,12 @@ public class Chatserver implements IChatserverCli, Runnable {
 		}
 		catch (NullPointerException e){
 			// when Client does not properly close the connection
+			closeConnection();
 		}
 		catch (IOException e){
 
 		}
-		finally {
-			// close Datagram-/ServerSocket, Socket and its reader and printer
-			closeConnection();
-		}
+
 	}
 
 	@Command
@@ -147,7 +154,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Command
 	@Override
 	public String exit() throws IOException {
-		executorService.shutdown();
+		executorService.shutdownNow();
+		//closeConnection();
 		if(serverSocket != null){
 			serverSocket.close();
 		}
@@ -156,7 +164,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		}
 		userMap.clear();
 		shell.close();
-		closeConnection();
+
 		return "Server closed.";
 	}
 

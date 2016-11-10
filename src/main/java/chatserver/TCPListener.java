@@ -47,12 +47,16 @@ public class TCPListener implements Runnable{
             e.printStackTrace();
             // will be thrown, don't worry
         } finally {
+            /*
             Iterator listIterator = serverList.iterator();
+            System.out.println("vor iterator");
             while(listIterator.hasNext()){
                 Chatserver elem = (Chatserver) listIterator.next();
                 elem.stop();
                 listIterator.remove();
             }
+            System.out.println("after iterator");
+
             if(serverSocket != null){
                 try {
                     serverSocket.close();
@@ -60,6 +64,7 @@ public class TCPListener implements Runnable{
                     // very unlikely
                 }
             }
+            */
         }
     }
 }

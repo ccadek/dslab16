@@ -21,6 +21,7 @@ public class Client implements IClientCli, Runnable {
 	private ServerSocket privateMsgServerSocket;
 	private static ExecutorService executorService;
 	private ResponseListener responseListener;
+	private boolean isRunning;
 
 	/**
 	 * @param componentName
@@ -53,12 +54,22 @@ public class Client implements IClientCli, Runnable {
 			e.printStackTrace();
 		}
 		responseListener = new ResponseListener(socket,shell);
+		isRunning = true;
 		// TODO
 	}
 
 	@Override
 	public void run() {
 		// TODO
+		try(BufferedReader in = ClientFactory.createBufferedReader(socket)){
+			while (isRunning){
+				String response = in.readLine();
+				shell.writeLine(response);
+			}
+		}catch(SocketException e){
+
+		}catch (IOException e) {
+		}
 	}
 
 	@Command
@@ -171,7 +182,7 @@ public class Client implements IClientCli, Runnable {
 	public String exit() throws IOException {
 		logout();
 		out.println("!exit");
-		responseListener.stop();
+		stop();
 		if(privateMsgServerSocket != null) {
 			privateMsgServerSocket.close();
 		}
@@ -179,6 +190,10 @@ public class Client implements IClientCli, Runnable {
 		shell.close();
 		executorService.shutdown();
 		return null;
+	}
+
+	private void stop(){
+		isRunning = false;
 	}
 
 	private void closeConnection() throws IOException {
@@ -212,7 +227,7 @@ public class Client implements IClientCli, Runnable {
 		executorService = Executors.newCachedThreadPool();
 		executorService.execute(client.getShell());
 		executorService.execute(client);
-		executorService.execute(client.getResponseListener());
+		//executorService.execute(client.getResponseListener());
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
