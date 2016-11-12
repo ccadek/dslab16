@@ -42,7 +42,7 @@ public class RequestParser{
 				} else if (command.equals("!lookup")) {
 					return new LookupExecutor(arguments);
 				} else if (command.equals("!msg")) {
-					return new MsgExecutor();
+					return new MsgExecutor(arguments);
 				} else if (command.equals("!exit")) {
 					return new ExitExecutor();
 				} else if (command.equals("!register")) {

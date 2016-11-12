@@ -22,6 +22,7 @@ public class Client implements IClientCli, Runnable {
 	private static ExecutorService executorService;
 	private boolean isRunning;
 	private String lastMessage;
+	private String privateAdressOfUser;
 
 	/**
 	 * @param componentName
@@ -55,6 +56,7 @@ public class Client implements IClientCli, Runnable {
 		}
 		isRunning = true;
 		lastMessage = "No public message has been received yet.";
+		privateAdressOfUser = "";
 	}
 
 	@Override
@@ -67,6 +69,12 @@ public class Client implements IClientCli, Runnable {
 				if(response.startsWith("!pub")){
 					lastMessage = response.substring(5,response.length());
 					shell.writeLine(lastMessage);
+				}
+				else if(response.startsWith("!msg")){
+					synchronized (privateAdressOfUser) {
+						System.out.println("in here?");
+						privateAdressOfUser = response.substring(4, response.length());
+					}
 				}
 				else {
 					shell.writeLine(response);
@@ -125,7 +133,22 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String msg(String username, String message) throws IOException {
-		out.println("!msg "+username+" "+message);
+		privateAdressOfUser = "";
+		out.println("!msg "+username);
+		while(privateAdressOfUser.isEmpty()){
+			//wait for response from server
+		}
+		System.out.println(privateAdressOfUser+" returned");
+		String[] parts = privateAdressOfUser.split(":");
+		InetAddress address = InetAddress.getByName(parts[0]);
+		int port = Integer.parseInt(parts[1]);
+		System.out.println(address+":"+port);
+		Socket s = new Socket(address, port);
+		PrintWriter o = ClientFactory.createPrintWriter(s);
+		o.println("!msg "+username+" "+message);
+
+		o.close();
+		s.close();
 		return null;
 
 	}

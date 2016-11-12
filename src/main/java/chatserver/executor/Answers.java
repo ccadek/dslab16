@@ -16,4 +16,6 @@ public class Answers {
 	public static final String SUCCESS_LOGOUT = "Successfully logged out.";
 
 	public static final String SUCCESS_REGISTER = "Successfully registered address for";
+
+	public static final String USER_NOT_REGISTERED = "User is not registered.";
 }

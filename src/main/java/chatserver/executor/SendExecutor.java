@@ -25,7 +25,7 @@ public class SendExecutor implements IRequestExecutor {
 		}
 		for(Chatserver c: chatserver.getInstances()){
 			Socket tmp = c.getSocket();
-			if(tmp.getRemoteSocketAddress() == socket.getRemoteSocketAddress()){
+			if(tmp.getRemoteSocketAddress().equals(socket.getRemoteSocketAddress())){
 				continue;
 			}
 

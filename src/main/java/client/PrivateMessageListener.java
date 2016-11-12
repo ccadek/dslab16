@@ -4,6 +4,7 @@ import cli.Shell;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -24,12 +25,17 @@ public class PrivateMessageListener implements Runnable{
 	public void run() {
 		Socket socket = null;
 		BufferedReader in = null;
+		PrintWriter out = null;
 		try{
 			while(isRunning){
 				socket = serverSocket.accept();
+				shell.writeLine("message received");
 				in = ClientFactory.createBufferedReader(socket);
+				out = ClientFactory.createPrintWriter(socket);
 				String message = in.readLine();
+				out.println("!ack");
 				shell.writeLine(message);
+				out.close();
 				in.close();
 				socket.close();
 			}
@@ -43,6 +49,9 @@ public class PrivateMessageListener implements Runnable{
 			try {
 				if (in != null) {
 					in.close();
+				}
+				if (out != null) {
+					out.close();
 				}
 				if (socket != null) {
 					socket.close();

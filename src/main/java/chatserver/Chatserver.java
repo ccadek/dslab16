@@ -124,6 +124,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 		}
 		catch (NullPointerException e){
 			// when Client does not properly close the connection
+			userMap.logoutUser((InetSocketAddress) socket.getRemoteSocketAddress());
 			closeConnection();
 		}
 		catch (IOException e){
