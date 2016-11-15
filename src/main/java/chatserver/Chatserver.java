@@ -141,12 +141,29 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Override
 	public String users() throws IOException {
 		List<String> usernames = userMap.getAllLoggedInUsersnames();
+
+		Config userConfig = new Config("user");
+		Set<String> tmp = userConfig.listKeys();
+		List<String> allusers = new ArrayList<>();
+		for(String s : tmp){
+			String t = s.substring(0,s.length()-9);
+			allusers.add(t);
+		}
+		Collections.sort(allusers);
+
 		if(usernames.size() == 0){
 			return "No users logged in";
 		}
 		String rtn = "";
-		for(String str : usernames){
-			rtn += str+", ";
+		int i = 1;
+		for(String str : allusers){
+			if(usernames.contains(str)) {
+				rtn += i+". "+str + " online";
+			} else {
+				rtn += i+". "+str+" offline";
+			}
+			i++;
+			rtn += "\n";
 		}
 		return rtn;
 	}
