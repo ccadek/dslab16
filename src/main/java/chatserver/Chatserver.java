@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 
+import chatserver.executor.ParsingException;
 import chatserver.executor.RequestParser;
 import cli.Command;
 import cli.Shell;
@@ -117,7 +118,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 				try {
 					RequestParser parser = new RequestParser(request, this);
 					parser.getRequestExecutor().execute(this);
-				} catch (IllegalArgumentException e) {
+				} catch (ParsingException e) {
 					answer(e.getMessage());
 				}
 			}

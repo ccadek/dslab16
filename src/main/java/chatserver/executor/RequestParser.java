@@ -32,7 +32,7 @@ public class RequestParser{
 		return command;
 	}
 
-	public IRequestExecutor getRequestExecutor() {
+	public IRequestExecutor getRequestExecutor() throws ParsingException{
 		if(socket != null) {
 			if (chatserver.getUserMap().isUserLoggedIn((InetSocketAddress) socket.getRemoteSocketAddress())) {
 				if (command.equals("!logout")) {
@@ -48,19 +48,19 @@ public class RequestParser{
 				} else if (command.equals("!register")) {
 					return new RegisterExecutor(arguments, socket);
 				} else {
-					throw new IllegalArgumentException(Answers.INVALID_REQUEST);
+					throw new ParsingException(Answers.INVALID_REQUEST);
 				}
 			} else if (command.equals("!login")) {
 				return new LoginExecutor(arguments, socket);
 			} else {
-				throw new IllegalArgumentException(Answers.NOT_LOGGED_IN);
+				throw new ParsingException(Answers.NOT_LOGGED_IN);
 			}
 		}
 		else if(command.equals("!list")){
 			return new ListExecutor(datagramPacket);
 		}
 		else {
-			throw new IllegalArgumentException(Answers.INVALID_REQUEST);
+			throw new ParsingException(Answers.INVALID_REQUEST);
 		}
 	}
 }
