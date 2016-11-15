@@ -21,6 +21,19 @@ public class PrivateMessageListener implements Runnable{
 		isRunning = true;
 	}
 
+	private String getPrivateMessage(String msg){
+		String[] parts = msg.trim().split(" ");
+
+		String message = parts[1]+": ";
+		for(int i = 2; i < parts.length; i++){
+			message += parts[i]+" ";
+			if(i < (parts.length-1)){
+				message += " ";
+			}
+		}
+		return message;
+	}
+
 	@Override
 	public void run() {
 		Socket socket = null;
@@ -29,10 +42,10 @@ public class PrivateMessageListener implements Runnable{
 		try{
 			while(isRunning){
 				socket = serverSocket.accept();
-				shell.writeLine("message received");
 				in = ClientFactory.createBufferedReader(socket);
 				out = ClientFactory.createPrintWriter(socket);
 				String message = in.readLine();
+				message = getPrivateMessage(message);
 				out.println("!ack");
 				shell.writeLine(message);
 				out.close();

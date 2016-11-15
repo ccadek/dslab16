@@ -23,6 +23,8 @@ public class Client implements IClientCli, Runnable {
 	private boolean isRunning;
 	private String lastMessage;
 	private String privateAdressOfUser;
+	//needed for private Messages
+	private String ownUsername;
 
 	/**
 	 * @param componentName
@@ -87,6 +89,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String login(String username, String password) throws IOException {
 		out.println("!login "+username+" "+password);
+		// it doesn't matter that we saved a wrong username if login fails
+		// the username is only used for privateMessages, nothing else
+		this.ownUsername = username;
 		return null;
 	}
 
@@ -101,6 +106,7 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	public String send(String message) throws IOException {
 		out.println("!send " + message);
+		lastMessage = ownUsername+": "+message;
 		return null;
 	}
 
@@ -134,17 +140,32 @@ public class Client implements IClientCli, Runnable {
 		out.println("!msg "+username);
 		while(privateAdressOfUser.isEmpty()){
 			//wait for response from server
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		String[] parts = privateAdressOfUser.split(":");
-		InetAddress address = InetAddress.getByName(parts[0]);
+		InetAddress address;
+		try {
+			address = InetAddress.getByName(parts[0]);
+		} catch (UnknownHostException e){
+			// Incase the other user is on localhost
+			address = InetAddress.getByName(null);
+		}
+
 		int port = Integer.parseInt(parts[1]);
 		Socket s = new Socket(address, port);
 		PrintWriter o = ClientFactory.createPrintWriter(s);
-		o.println("!msg "+username+" "+message);
+		BufferedReader i = ClientFactory.createBufferedReader(s);
+
+		o.println("!msg "+ownUsername+" "+message);
+		String privateResponse = i.readLine();
 
 		o.close();
 		s.close();
-		return null;
+		return username+" replied with "+privateResponse;
 
 	}
 

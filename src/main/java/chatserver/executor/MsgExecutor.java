@@ -19,9 +19,8 @@ public class MsgExecutor implements IRequestExecutor {
 		String response = Answers.USER_NOT_REGISTERED;
 
 		if(registeredUserAddress != null){
-			response = registeredUserAddress.toString();
+			response = "!msg "+registeredUserAddress.toString();
 		}
-		System.out.println(registeredUserAddress);
 		chatserver.answer(response);
 	}
 }
