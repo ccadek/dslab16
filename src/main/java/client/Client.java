@@ -22,7 +22,7 @@ public class Client implements IClientCli, Runnable {
 	private static ExecutorService executorService;
 	private boolean isRunning;
 	private String lastMessage;
-	private String privateAdressOfUser;
+	private String privateAddressOfUser;
 	//needed for private Messages
 	private String ownUsername;
 
@@ -58,7 +58,7 @@ public class Client implements IClientCli, Runnable {
 		}
 		isRunning = true;
 		lastMessage = "No public message has been received yet.";
-		privateAdressOfUser = "";
+		privateAddressOfUser = "";
 	}
 
 	@Override
@@ -71,8 +71,8 @@ public class Client implements IClientCli, Runnable {
 					shell.writeLine(lastMessage);
 				}
 				else if(response.startsWith("!msg")){
-					synchronized (privateAdressOfUser) {
-						privateAdressOfUser = response.substring(4, response.length());
+					synchronized (privateAddressOfUser) {
+						privateAddressOfUser = response.substring(4, response.length());
 					}
 				}
 				else {
@@ -136,9 +136,9 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String msg(String username, String message) throws IOException {
-		privateAdressOfUser = "";
+		privateAddressOfUser = "";
 		out.println("!msg "+username);
-		while(privateAdressOfUser.isEmpty()){
+		while(privateAddressOfUser.isEmpty()){
 			//wait for response from server
 			try {
 				Thread.sleep(100);
@@ -146,7 +146,7 @@ public class Client implements IClientCli, Runnable {
 				e.printStackTrace();
 			}
 		}
-		String[] parts = privateAdressOfUser.split(":");
+		String[] parts = privateAddressOfUser.split(":");
 		InetAddress address;
 		try {
 			address = InetAddress.getByName(parts[0]);
