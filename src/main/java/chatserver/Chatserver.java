@@ -111,7 +111,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 				if (socket != null) {
 					request = in.readLine().trim();
 				} else if (datagramPacket != null) {
-					request = new String(datagramPacket.getData());
+					request = new String(datagramPacket.getData()).trim();
 				}
 
 				// delegate query to requestexecutor

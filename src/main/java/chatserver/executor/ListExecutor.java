@@ -3,6 +3,7 @@ package chatserver.executor;
 import chatserver.Chatserver;
 
 import java.net.*;
+import java.util.Collections;
 import java.util.List;
 
 public class ListExecutor implements IRequestExecutor {
@@ -18,6 +19,7 @@ public class ListExecutor implements IRequestExecutor {
 	public void execute(Chatserver chatserver) {
 
 		List<String> userList = chatserver.getUserMap().getAllLoggedInUsersnames();
+		Collections.sort(userList);
 		String response = "";
 
 		for(int i = 0; i < userList.size(); i++){

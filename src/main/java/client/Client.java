@@ -2,6 +2,7 @@ package client;
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -124,7 +125,7 @@ public class Client implements IClientCli, Runnable {
 		packet = new DatagramPacket(buffer,buffer.length);
 		datagramSocket.receive(packet);
 		String response = new String(packet.getData());
-		String[] parts = response.split(",");
+		String[] parts = response.trim().split(",");
 		StringBuilder rst = new StringBuilder("Online Users:\n");
 		for(int i = 0; i < parts.length; i++){
 			rst.append("* "+parts[i]+"\n");

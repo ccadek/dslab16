@@ -29,7 +29,7 @@ public class UDPListener implements Runnable{
         byte[] buffer;
         try{
             while(!executorService.isShutdown()){
-                buffer = new byte[1024];
+                buffer = new byte[10];
                 packet = new DatagramPacket(buffer,buffer.length);
                 datagramSocket.receive(packet);
 
