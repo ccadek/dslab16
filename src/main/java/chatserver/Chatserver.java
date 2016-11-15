@@ -144,19 +144,19 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 		Config userConfig = new Config("user");
 		Set<String> tmp = userConfig.listKeys();
-		List<String> allusers = new ArrayList<>();
+		List<String> allUsers = new ArrayList<>();
 		for(String s : tmp){
 			String t = s.substring(0,s.length()-9);
-			allusers.add(t);
+			allUsers.add(t);
 		}
-		Collections.sort(allusers);
+		Collections.sort(allUsers);
 
 		if(usernames.size() == 0){
 			return "No users logged in";
 		}
 		String rtn = "";
 		int i = 1;
-		for(String str : allusers){
+		for(String str : allUsers){
 			if(usernames.contains(str)) {
 				rtn += i+". "+str + " online";
 			} else {
