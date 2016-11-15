@@ -61,18 +61,15 @@ public class Client implements IClientCli, Runnable {
 
 	@Override
 	public void run() {
-		// TODO
 		try(BufferedReader in = ClientFactory.createBufferedReader(socket)){
 			while (isRunning){
 				String response = in.readLine().trim();
-				System.out.println(response);
 				if(response.startsWith("!pub")){
 					lastMessage = response.substring(5,response.length());
 					shell.writeLine(lastMessage);
 				}
 				else if(response.startsWith("!msg")){
 					synchronized (privateAdressOfUser) {
-						System.out.println("in here?");
 						privateAdressOfUser = response.substring(4, response.length());
 					}
 				}
@@ -138,11 +135,9 @@ public class Client implements IClientCli, Runnable {
 		while(privateAdressOfUser.isEmpty()){
 			//wait for response from server
 		}
-		System.out.println(privateAdressOfUser+" returned");
 		String[] parts = privateAdressOfUser.split(":");
 		InetAddress address = InetAddress.getByName(parts[0]);
 		int port = Integer.parseInt(parts[1]);
-		System.out.println(address+":"+port);
 		Socket s = new Socket(address, port);
 		PrintWriter o = ClientFactory.createPrintWriter(s);
 		o.println("!msg "+username+" "+message);
@@ -190,7 +185,6 @@ public class Client implements IClientCli, Runnable {
 	@Command
 	@Override
 	public String lastMsg() throws IOException {
-		//TODO implement it
 		return lastMessage;
 	}
 
