@@ -17,16 +17,16 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-	private static ServerSocket serverSocket;
-	private static DatagramSocket datagramSocket;
-	private Socket socket;
 	private DatagramPacket datagramPacket;
-	public static Shell shell;
-	private static ExecutorService executorService;
-	private static UserMap userMap;
+	private Socket socket;
 	private BufferedReader in;
 	private PrintWriter out;
 	private boolean isRunning;
+	public static Shell shell;
+	private static ServerSocket serverSocket;
+	private static DatagramSocket datagramSocket;
+	private static ExecutorService executorService;
+	private static UserMap userMap;
 	private static List<Chatserver> instances = new ArrayList<>();
 
 	/**

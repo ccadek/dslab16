@@ -6,8 +6,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class TCPListener implements Runnable{
@@ -15,7 +13,6 @@ public class TCPListener implements Runnable{
     private Config config;
     private ServerSocket serverSocket;
     private ExecutorService executorService;
-    private List<Chatserver> serverList;
 
     public TCPListener(String componentName, Config config, ServerSocket serverSocket,
                        ExecutorService executorService){
@@ -23,7 +20,6 @@ public class TCPListener implements Runnable{
         this.config = config;
         this.serverSocket = serverSocket;
         this.executorService = executorService;
-        this.serverList = new ArrayList<>();
     }
 
     @Override
@@ -34,7 +30,6 @@ public class TCPListener implements Runnable{
                 socket = serverSocket.accept();
                 Chatserver chatserver = new Chatserver(componentName,config,
                         socket.getInputStream(),new PrintStream(socket.getOutputStream()));
-                serverList.add(chatserver);
                 chatserver.setSocket(socket);
                 executorService.execute(chatserver);
             }

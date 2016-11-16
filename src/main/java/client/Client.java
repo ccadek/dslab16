@@ -2,7 +2,6 @@ package client;
 
 import java.io.*;
 import java.net.*;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -20,12 +19,12 @@ public class Client implements IClientCli, Runnable {
 	private Socket socket;
 	private PrintWriter out;
 	private ServerSocket privateMsgServerSocket;
-	private static ExecutorService executorService;
 	private boolean isRunning;
 	private String lastMessage;
 	private String privateAddressOfUser;
 	//needed for private Messages
 	private String ownUsername;
+	private static ExecutorService executorService;
 
 	/**
 	 * @param componentName
@@ -72,7 +71,9 @@ public class Client implements IClientCli, Runnable {
 					shell.writeLine(lastMessage);
 				}
 				else if(response.startsWith("!msg")){
+					synchronized (privateAddressOfUser) {
 						privateAddressOfUser = response.substring(4, response.length());
+					}
 				}
 				else {
 					shell.writeLine(response);
@@ -138,7 +139,7 @@ public class Client implements IClientCli, Runnable {
 		privateAddressOfUser = "";
 		out.println("!msg "+username);
 		while(privateAddressOfUser.isEmpty()){
-
+			// wait until private address of 'username' is returned.
 		}
 		String[] parts = privateAddressOfUser.split(":");
 		InetAddress address;
@@ -188,13 +189,15 @@ public class Client implements IClientCli, Runnable {
 		} catch (NumberFormatException e){
 			return error;
 		}
-		out.println("!register "+privateAddress);
-
-		privateMsgServerSocket = new ServerSocket(port);
-		PrivateMessageListener privateMessageListener = new PrivateMessageListener(privateMsgServerSocket,shell);
-		executorService.execute(privateMessageListener);
-
-		return null;
+		try {
+			privateMsgServerSocket = new ServerSocket(port);
+			out.println("!register "+privateAddress);
+			PrivateMessageListener privateMessageListener = new PrivateMessageListener(privateMsgServerSocket, shell);
+			executorService.execute(privateMessageListener);
+			return null;
+		} catch (BindException e){
+			return "Port already used, choose another one";
+		}
 	}
 
 	@Command
