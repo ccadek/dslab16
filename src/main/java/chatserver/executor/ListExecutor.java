@@ -33,5 +33,6 @@ public class ListExecutor implements IRequestExecutor {
 		byte[] answer = response.getBytes();
 		packet = new DatagramPacket(answer, answer.length, address, port);
 		chatserver.answer(packet);
+		chatserver.stop();
 	}
 }
