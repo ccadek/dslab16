@@ -72,9 +72,7 @@ public class Client implements IClientCli, Runnable {
 					shell.writeLine(lastMessage);
 				}
 				else if(response.startsWith("!msg")){
-					synchronized (privateAddressOfUser) {
 						privateAddressOfUser = response.substring(4, response.length());
-					}
 				}
 				else {
 					shell.writeLine(response);
@@ -140,12 +138,7 @@ public class Client implements IClientCli, Runnable {
 		privateAddressOfUser = "";
 		out.println("!msg "+username);
 		while(privateAddressOfUser.isEmpty()){
-			//wait for response from server
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
 		}
 		String[] parts = privateAddressOfUser.split(":");
 		InetAddress address;
